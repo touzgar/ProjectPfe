@@ -8,6 +8,7 @@ import com.example.demo.Service.register.RegistrationRequest;
 
 public interface UserService {
 	User saveUser(User user);
+	  User findUserById(Long id);
 	User findUserByUsername(String username);
 	Role addRole(Role role);
 	User addRoleToUser(String username,String roleName);
@@ -15,4 +16,10 @@ public interface UserService {
 	User registerUser(RegistrationRequest request);
 	public void sendEmailUser(User u,String code);
 	public User validateToken(String code);
+	void createPasswordResetTokenForUser(User user, String token);
+    void changeUserPassword(User user, String newPassword);
+    void deleteUser(long id);
+    List<Role> findAllRoles();
+    Role findRoleById(Long id);
+    User removeRoleFromUser(long id, Role r);
 }

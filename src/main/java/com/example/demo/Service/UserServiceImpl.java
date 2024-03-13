@@ -7,12 +7,15 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.Model.PasswordResetToken;
 import com.example.demo.Model.Role;
 import com.example.demo.Model.User;
+import com.example.demo.Repository.PasswordResetTokenRepository;
 import com.example.demo.Repository.RoleRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.execption.EmailAlreadyExistsException;
@@ -35,6 +38,8 @@ BCryptPasswordEncoder bCryptPasswordEncoder;
 VerificationTokenRepository verificationTokenRepository;
 @Autowired
 EmailSender emailSender;
+@Autowired
+private PasswordResetTokenRepository passwordResetTokenRepository;
 
 
 	@Override
@@ -131,5 +136,59 @@ EmailSender emailSender;
 		userRepository.save(user);
 		return user;
 	}
+	  @Override
+	    public void createPasswordResetTokenForUser(User user, String token) {
+	        PasswordResetToken myToken = new PasswordResetToken();
+	        myToken.setUser(user);
+	        myToken.setToken(token);
+	        myToken.setExpiryDate(60); // token expires in 60 minutes
+	        passwordResetTokenRepository.save(myToken);
+
+	        sendPasswordResetEmail(user, token);
+	    }
+	  @Override
+	    public void changeUserPassword(User user, String newPassword) {
+	        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+	        userRepository.save(user);
+	    }
+	  private void sendPasswordResetEmail(User user, String token) {
+		    String recipientAddress = user.getEmail();
+		    String subject = "Password Reset Request";
+		    String resetUrl = "http://localhost:8089/users/reset-password?token=" + token;
+		    String emailBody = "To reset your password, click the link below:\n" + resetUrl;
+
+		    emailSender.sendEmail(recipientAddress, emailBody); // Corrected method call
+		}
+
+	@Override
+	public User findUserById(Long id) {
 	
-}
+		return userRepository.findById(id).get();
+	}
+
+	@Override
+	public void deleteUser(long id) {
+		userRepository.deleteAll();
+		
+	}
+
+	@Override
+	public List<Role> findAllRoles() {
+		
+		return roleRepository.findAll();
+	}
+
+	@Override
+	public Role findRoleById(Long id) {
+		
+		return roleRepository.findRoleById(id);
+	}
+
+	@Override
+	public User removeRoleFromUser(long id, Role r) {
+		 User user = userRepository.findUserById(id);
+	        List<Role> listOfRoles = user.getRoles();
+	        listOfRoles.remove(r);
+	        userRepository.save(user);
+	        return user;}
+	  }

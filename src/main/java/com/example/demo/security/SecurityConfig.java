@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -16,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -40,25 +42,35 @@ public class SecurityConfig {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
 
         http
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .csrf().disable()
-            
-            
-            
-            
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login","/register/**","/verifyEmail/**","/logout").permitAll() // Ensure your login endpoint is correctly set
-                .requestMatchers("/all").hasAuthority("ADMIN") // This requires the user to have 'ADMIN' authority
-                .anyRequest().authenticated())
-            .addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-            
+        .csrf().disable()
+        .cors().and()
+        .authorizeRequests()
+        .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password","/reset-password", "/logout").permitAll()
+        .requestMatchers("/all").permitAll()
+        .requestMatchers("/addUser").permitAll()
+        .requestMatchers("/deleteUser/**").hasAuthority("ADMIN")
+        .requestMatchers("/addRoleToUser").hasAuthority("ADMIN")
+        .anyRequest().authenticated()
+        .and()
+        .addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);      
 
         // Enable this for debugging purposes
         http.httpBasic().disable().logout().disable();
 
         return http.build();
     }
+    
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*")); // Ajustez selon vos besoins
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 }
