@@ -23,8 +23,6 @@ import com.example.demo.Service.register.RegistrationRequest;
 @CrossOrigin("*")
 public class UserController {
 	@Autowired
-	UserRepository userRepository;
-	@Autowired
 	UserService userService;
 	
 	@GetMapping("all")
