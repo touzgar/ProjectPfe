@@ -17,4 +17,8 @@ public class SecurityBeansConfiguration {
 	 authenticationManager(AuthenticationConfiguration config) throws Exception{
 		 return config.getAuthenticationManager();
 	 }
+	 @Bean
+	    public TokenStore tokenStore() {
+	        return new TokenStore();
+	    }
 }

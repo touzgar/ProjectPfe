@@ -25,12 +25,16 @@ import jakarta.servlet.http.HttpServletRequest;
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
-
+    @Autowired
+    private TokenStore tokenStore;
     @Autowired
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
         this.authenticationConfiguration = authenticationConfiguration;
     }
-
+    @Bean
+    public JWTAuthorizationFilter jwtAuthorizationFilter() {
+        return new JWTAuthorizationFilter(tokenStore);
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
@@ -45,11 +49,12 @@ public class SecurityConfig {
             
             
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login","/register/**","/verifyEmail/**").permitAll() // Ensure your login endpoint is correctly set
+                .requestMatchers("/login","/register/**","/verifyEmail/**","/logout").permitAll() // Ensure your login endpoint is correctly set
                 .requestMatchers("/all").hasAuthority("ADMIN") // This requires the user to have 'ADMIN' authority
                 .anyRequest().authenticated())
             .addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+            
 
         // Enable this for debugging purposes
         http.httpBasic().disable().logout().disable();
