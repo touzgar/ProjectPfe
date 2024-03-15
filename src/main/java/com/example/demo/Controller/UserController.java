@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -94,12 +95,10 @@ public class UserController {
 	    public List<User> getAllUsers() {
 	        return userService.findAllUsers();
 	    }
-	    @RequestMapping(path = "addUser", method = RequestMethod.POST)
-	    public User saveUser(@RequestBody User user) {
-	        return userService.saveUser(user);
-	    }
+	  
 
-	    @RequestMapping(path="deleteUser/{id}",method=RequestMethod.DELETE)
+	    @RequestMapping(path="/deleteUser/{id}",method=RequestMethod.DELETE)
+	    @PreAuthorize("hasAuthority('ADMIN')")
 	    public void deleteUserById(@PathVariable long id) {
 	        userService.deleteUser(id);
 	    }

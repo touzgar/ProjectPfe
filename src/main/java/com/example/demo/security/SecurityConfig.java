@@ -7,6 +7,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -40,21 +41,37 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = authenticationConfiguration.getAuthenticationManager();
-
-        http
-        .csrf().disable()
-        .cors().and()
-        .authorizeRequests()
+        
+        http.sessionManagement(session -> session
+               .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .csrf(csrf -> csrf.disable())
+        
+        .cors(cors ->cors.configurationSource(new CorsConfigurationSource() {
+			
+			@Override
+			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+				CorsConfiguration cors=new CorsConfiguration();
+				cors.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+				cors.setAllowedMethods(Collections.singletonList("*"));
+				cors.setAllowedHeaders(Collections.singletonList("*"));
+				cors.setExposedHeaders(Collections.singletonList("Authorization"));
+				return cors;
+			}
+		}))
+        
+        
+        .authorizeRequests(requests -> requests
         .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password","/reset-password", "/logout").permitAll()
         .requestMatchers("/all").permitAll()
-        .requestMatchers("/addUser").permitAll()
-        .requestMatchers("/deleteUser/**").hasAuthority("ADMIN")
-        .requestMatchers("/addRoleToUser").hasAuthority("ADMIN")
-        .anyRequest().authenticated()
-        .and()
+        .requestMatchers(HttpMethod.DELETE,"/deleteUser/**").hasAuthority("ADMIN")
+        .requestMatchers(HttpMethod.POST,"/api/manager/**").hasAuthority("ADMIN")
+        
+        
+        .anyRequest().authenticated())
+        
         .addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);      
+        ;      
 
         // Enable this for debugging purposes
         http.httpBasic().disable().logout().disable();
@@ -62,15 +79,6 @@ public class SecurityConfig {
         return http.build();
     }
     
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*")); // Ajustez selon vos besoins
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    
 
 }

@@ -8,7 +8,7 @@ import com.example.demo.Service.register.RegistrationRequest;
 
 public interface UserService {
 	User saveUser(User user);
-	  User findUserById(Long id);
+	User findUserById(Long id);
 	User findUserByUsername(String username);
 	Role addRole(Role role);
 	User addRoleToUser(String username,String roleName);
