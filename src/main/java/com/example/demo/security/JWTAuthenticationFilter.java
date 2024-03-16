@@ -73,7 +73,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 				.sign(Algorithm.HMAC256(SecParams.SECRET));
 		response.addHeader("Authorization", jwt);
 	}
-	/*@Override
+	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request,
 			HttpServletResponse response,AuthenticationException failed)
 	throws IOException,ServletException{
@@ -93,7 +93,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		}
 		
 	}
-	*/
+	
 	
 	
 	

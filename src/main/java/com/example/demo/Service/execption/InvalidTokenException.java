@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class InvalidTokenException extends RuntimeException {
 	
-	private String massage;
+	private String message;
 	public InvalidTokenException(String message) {
 		super(message);
 	}
