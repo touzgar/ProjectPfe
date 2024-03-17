@@ -98,31 +98,31 @@ public class UserController {
 	  
 
 	    @RequestMapping(path="/deleteUser/{id}",method=RequestMethod.DELETE)
-	    @PreAuthorize("hasAuthority('ADMIN')")
+	    
 	    public void deleteUserById(@PathVariable long id) {
 	        userService.deleteUser(id);
 	    }
 
 	   
 	    @PostMapping("/addRoleToUser/{username}")
-	    public ResponseEntity<User> addRoleToUser(@PathVariable String username, @RequestBody String roleName) {
+	    public ResponseEntity<User> addRoleToUser(@PathVariable String username, @RequestBody Role role) {
 	        try {
-	            User user = userService.addRoleToUser(username, roleName);
+	            User user = userService.addRoleToUser(username, role.getRole()); // Assuming getRole() returns the role name
 	            return ResponseEntity.ok(user);
 	        } catch (Exception e) {
 	            // Handle your exceptions here, like UserNotFoundException or RoleNotFoundException
 	            return ResponseEntity.badRequest().build();
 	        }
 	    }
-	    @RequestMapping(path="getUser/{id}",method=RequestMethod.GET)
-	    public User findUserById(@PathVariable Long id) {
-	        return userService.findUserById(id);
-	    }
 
+	   
+
+	    
 	    @RequestMapping(path="allRoles",method=RequestMethod.GET)
 	    public List<Role> getAllRoles() {
 	        return userService.findAllRoles();
 	    }
+
 
 	    @RequestMapping(path="role/{id}",method=RequestMethod.GET)
 	    public Role findRoleById(@PathVariable Long id) {
@@ -133,6 +133,12 @@ public class UserController {
 	    {
 	        return  userService.removeRoleFromUser(id,r);
 	    }
+	    @PostMapping("/addRole")
+	    public ResponseEntity<Role> addRole(@RequestBody Role role) {
+	        Role savedRole = userService.addRole(role);
+	        return ResponseEntity.ok(savedRole);
+	    }
+
 
 
 }

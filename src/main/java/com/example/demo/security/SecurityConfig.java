@@ -24,7 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+
+
 public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
@@ -61,20 +62,15 @@ public class SecurityConfig {
         
         
         .authorizeRequests(requests -> requests
-        .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password","/reset-password", "/logout").permitAll()
-        .requestMatchers("/all").permitAll()
-        .requestMatchers(HttpMethod.DELETE,"/deleteUser/**").hasAuthority("ADMIN")
-        .requestMatchers(HttpMethod.POST,"/api/manager/**").hasAuthority("ADMIN")
-        
-        
-        .anyRequest().authenticated())
-        
-        .addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
-        ;      
-
+        	    .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password", "/reset-password" ).permitAll()
+        	    .requestMatchers("/all", "/addRoleToUser/**", "/getUser/**", "/removeRole/**","/allRoles","/addRole","/deleteUser/**").permitAll()
+        	    .requestMatchers("/api/player/**").hasAnyAuthority("ADMIN","Manager")
+        	    .anyRequest().authenticated())
+        	.addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+        	.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+  
         // Enable this for debugging purposes
-        http.httpBasic().disable().logout().disable();
+     //   http.httpBasic().disable().logout().disable();
 
         return http.build();
     }

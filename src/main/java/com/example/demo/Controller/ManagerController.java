@@ -20,7 +20,7 @@ import com.example.demo.Service.ManagerService;
 @RestController
 @RequestMapping("/api/manager")
 @CrossOrigin("*")
-@PreAuthorize("hasAuthority('ADMIN')")
+
 public class ManagerController {
 @Autowired
 ManagerService managerService;
