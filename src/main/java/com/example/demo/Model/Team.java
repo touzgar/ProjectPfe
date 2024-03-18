@@ -7,7 +7,9 @@ import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
@@ -31,6 +33,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "idTeam")
 
 public class Team {
 	@Id
@@ -83,6 +88,7 @@ public class Team {
 	    
 	    
 	    
+	    
 	
 	    @ManyToOne
 	    @JoinColumn(name = "club_id")
@@ -114,5 +120,14 @@ public class Team {
 	    }
 
 	
-		
+	    @ManyToMany
+	    @JoinTable(
+	        name = "team_tournament", // Specifies the join table name
+	        joinColumns = @JoinColumn(name = "team_id"), // Specifies the column for team ID in the join table
+	        inverseJoinColumns = @JoinColumn(name = "tournament_id") // Specifies the column for tournament ID in the join table
+	    )
+	    private List<Tournament> tournaments;
+
+	   	
+
 }

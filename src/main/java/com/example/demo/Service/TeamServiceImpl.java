@@ -87,11 +87,7 @@ public List<Team> getAllTeams() {
 public List<Team> searchByTeamName(String teamName) {
     return teamRepository.findByTeamNameContainingIgnoreCase(teamName);
 }
-@Override
-public List<String> findParticipatingTournamentsByTeamName(String teamName) {
-    Optional<Team> team = teamRepository.findByTeamName(teamName);
-    return team.map(Team::getParticipatingTournaments).orElse(Collections.emptyList());
-}
+
 @Override
 public Team saveTeamWithClubName(Team team, String clubName) {
     return clubRepository.findByClubName(clubName).map(club -> {

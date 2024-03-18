@@ -71,6 +71,7 @@ public class SecurityConfig {
         	    .requestMatchers("/api/player/**").permitAll()
         	    .requestMatchers("/api/team/**").permitAll()
         	    .requestMatchers("/api/club/**").permitAll()
+        	    .requestMatchers("/api/tournament/**").permitAll()
 
         
         

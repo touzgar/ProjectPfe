@@ -111,10 +111,6 @@ public class TeamController {
 	    public List<Team> searchTeams(@RequestParam("name") String teamName) {
 	        return teamService.searchByTeamName(teamName);
 	    }
-	 @GetMapping("/tournaments/{teamName}")
-	    public List<String> getTournamentsByTeamName(@PathVariable String teamName) {
-	        return teamService.findParticipatingTournamentsByTeamName(teamName);
-	    }
 	 @PostMapping("/addCoachToTeam")
 	    public ResponseEntity<?> addCoachToTeam(@RequestParam("teamName") String teamName, 
 	                                            @RequestParam("coachName") String coachName) {

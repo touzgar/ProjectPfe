@@ -2,9 +2,9 @@ package com.example.demo.Controller;
 
 
 import com.example.demo.Model.Player;
-import com.example.demo.Model.Team;
+
 import com.example.demo.Repository.PlayerRepository;
-import com.example.demo.Repository.TeamRepository;
+
 import com.example.demo.Service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -24,8 +24,7 @@ public class PlayerController {
 
     @Autowired
   private  PlayerService playerService;
-    @Autowired
-    private TeamRepository teamRepository;
+    
     @Autowired
     private PlayerRepository playerRepository;
 

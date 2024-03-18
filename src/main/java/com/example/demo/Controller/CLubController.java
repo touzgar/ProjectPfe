@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Model.Club;
-import com.example.demo.Model.Team;
+
 import com.example.demo.Service.CLubService;
 
 @RestController

@@ -12,7 +12,6 @@ public interface TeamService {
 	Team getTeam(Long idClub);
 	List<Team> getAllTeams();
 	List<Team> searchByTeamName(String teamName);
-	List<String> findParticipatingTournamentsByTeamName(String teamName);
 	Team saveTeamWithClubName(Team team, String clubName);
 /*	 Team saveTeamWithClubAndCoachName(Team team, String clubName, String coachName);*/
 	  Team addCoachToTeam(String teamName, String coachName);
