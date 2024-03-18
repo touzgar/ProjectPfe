@@ -1,8 +1,13 @@
 package com.example.demo.Controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Model.Club;
+import com.example.demo.Model.Team;
 import com.example.demo.Service.CLubService;
 
 @RestController
@@ -34,14 +40,60 @@ public class CLubController {
 		return clubService.getClub(id);
 	}
 	 @PostMapping("/add")
-	 public Club createClub(@RequestBody Club club) {
-	     return clubService.saveClub(club);
+	 public ResponseEntity<?> createClub(@RequestBody Map<String, Object> payload) {
+	     try {
+	         
+	         String description = (String) payload.get("description");
+	         String clubName = (String) payload.get("clubName");
+	        
+	        
+
+	         Club club = new Club();
+	         club.setClubName (clubName);
+	         club.setDescription(description);
+	         
+	         // Use the service to handle the logic of adding club and coach by name
+	         Club savedClub = clubService.saveClub(club);
+	         return ResponseEntity.ok(savedClub);
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body("Error creating team: " + e.getMessage());
+	     }
 	 }
 
+
 	 @PutMapping("/update/{id}")
-	public Club updateClub(@RequestBody Club club) {
-	    return clubService.UpdateClub(club);
-	}
+	 public ResponseEntity<?> updateTeam(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
+	        try {
+	            Club existingClub = clubService.getClub(id);
+	            if (existingClub == null) {
+	                return ResponseEntity.notFound().build();
+	            }
+
+	            // Update player details from payload
+	            String clubName = (String) payload.get("clubName");
+	            if (clubName != null) existingClub.setClubName(clubName);
+	            
+	            String description = (String) payload.get("description");
+	            if (description != null) existingClub.setDescription(description);
+	            
+	            
+	            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	            if (payload.containsKey("dateCreation")) {
+	                Date dateCreation = dateFormat.parse((String) payload.get("dateCreation"));
+	                existingClub.setDateCreation(dateCreation);
+	            }
+	            
+	          	            	// Now, save the updated player information
+	            Club updatedClub = clubService.UpdateClub(existingClub);
+
+	            return ResponseEntity.ok(updatedClub);
+	        } catch (ParseException e) {
+	            return ResponseEntity.badRequest().body("An error occurred parsing date fields: " + e.getMessage());
+	        } catch (Exception e) {
+	            return ResponseEntity.badRequest().body("An error occurred while updating the team: " + e.getMessage());
+	        }
+	    }
+
 	    @DeleteMapping("/delete/{id}")
 	public void deleteclub(@PathVariable("id") Long id) {
 		clubService.deleteClubById(id);

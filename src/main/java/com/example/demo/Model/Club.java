@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -42,31 +43,35 @@ public List<Coach> getCoach() {
 public void setCoach(List<Coach> coach) {
     this.coach = coach;
 }
-@JsonIgnore
-
-@OneToOne(mappedBy = "club", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-private Team team;
 
 
-public Team getTeam() {
-	return team;
+@JsonManagedReference
+@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+private List<Team> teams;
+
+// Getters and setters
+
+public List<Team> getTeams() {
+    return teams;
 }
 
-public void setTeam(Team team) {
-    // If there's an existing team, remove the club reference from it
-    if (this.team != null) {
-        this.team.setClub(null);
+public void setTeams(List<Team> teams) {
+    // Clear existing team associations
+    if (this.teams != null) {
+        for (Team team : this.teams) {
+            team.setClub(null);
+        }
     }
-    
-    // Set the new team
-    this.team = team;
-    
-    // If the new team is not null, set this club as its club
-    if (team != null) {
-        team.setClub(this);
-    }
-}
 
+    // Set the new team associations
+    if (teams != null) {
+        for (Team team : teams) {
+            team.setClub(this);
+        }
+    }
+
+    this.teams = teams;
+}
 
 public Long getIdClub() {
 	return idClub;

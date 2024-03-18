@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -17,12 +17,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 
 public class Team {
@@ -77,10 +84,10 @@ public class Team {
 	    
 	    
 	
-	@OneToOne(fetch = FetchType.EAGER)
-	    @JoinColumn(name = "club_id", referencedColumnName = "idClub")
-	    private Club club;
-	
+	    @ManyToOne
+	    @JoinColumn(name = "club_id")
+	    @JsonBackReference
+	    private Club club;	
 	 public Club getClub() {
 		 return club ;
 	 }
@@ -88,53 +95,24 @@ public class Team {
 		 this.club=club;
 	 }
 	 
-	 
-	
-	 @ManyToOne
-	    @JoinColumn(name = "coach_id") // references the primary key 'id' of Coach
-	    private Coach coach; 
-		    	 
-    
-	public Coach getCoach() {
-		return coach;
-	}
-	public void setCoach(Coach coach) {
-		this.coach = coach;
-	}
-	public Long getIdTeam() {
-		return idTeam;
-	}
-	public void setIdTeam(Long idTeam) {
-		this.idTeam = idTeam;
-	}
-	public String getTeamName() {
-		return teamName;
-	}
+	 @ManyToMany
+	    @JoinTable(
+	        name = "team_coach",
+	        joinColumns = @JoinColumn(name = "team_id"),
+	        inverseJoinColumns = @JoinColumn(name = "coach_id")
+	    )
+	    @JsonManagedReference
+	    private List<Coach> coaches;
 
-	public void setTeamName(String teamName) {
-		this.teamName = teamName;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public Date getDateCreation() {
-		return dateCreation;
-	}
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
-	}
-	public List<String> getParticipatingTournaments() {
-		return participatingTournaments;
-	}
-	public void setParticipatingTournaments(List<String> participatingTournaments) {
-		this.participatingTournaments = participatingTournaments;
-	}
-	public Team() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	    // Getter and setter for coaches
+	    public List<Coach> getCoaches() {
+	        return coaches;
+	    }
+
+	    public void setCoaches(List<Coach> coaches) {
+	        this.coaches = coaches;
+	    }
+
 	
+		
 }

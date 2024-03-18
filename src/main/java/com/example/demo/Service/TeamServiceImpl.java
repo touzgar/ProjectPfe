@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +54,7 @@ public void deleteTeamById(Long idTeam) {
     // Disassociate team from its club, if any
     Club club = team.getClub();
     if (club != null) {
-        club.setTeam(null);
+        club.setTeams(null);
         clubRepository.save(club);
     }
 
@@ -98,7 +99,7 @@ public Team saveTeamWithClubName(Team team, String clubName) {
         return teamRepository.save(team);
     }).orElseThrow(() -> new RuntimeException("Club with name '" + clubName + "' not found"));
 }
-@Override
+/*@Override
 @Transactional
 public Team saveTeamWithClubAndCoachName(Team team, String clubName, String coachName) {
     Club club = clubRepository.findByClubName(clubName)
@@ -112,6 +113,85 @@ public Team saveTeamWithClubAndCoachName(Team team, String clubName, String coac
     team.setCoach(coach);
 
     return teamRepository.save(team);
+}
+*/
+@Override
+public Team addCoachToTeam(String teamName, String coachName) {
+    Team team = teamRepository.findByTeamName(teamName)
+                    .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
+
+    Coach coach = coachRepository.findByNameCoach(coachName)
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Coach with name '" + coachName + "' not found"));
+
+    if (!team.getClub().equals(coach.getClub())) {
+        throw new RuntimeException("Coach and team do not belong to the same club");
+    }
+
+    team.getCoaches().add(coach);
+    coach.getTeams().add(team);
+
+    teamRepository.save(team);
+    coachRepository.save(coach);
+
+    return team;
+}
+@Override
+public void removeCoachFromTeam(String teamName, String coachName) {
+    Team team = teamRepository.findByTeamName(teamName)
+            .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
+
+    Coach coach = coachRepository.findByNameCoach(coachName)
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Coach with name '" + coachName + "' not found"));
+
+    if (!team.getClub().equals(coach.getClub())) {
+        throw new RuntimeException("Coach and team do not belong to the same club");
+    }
+
+    team.getCoaches().remove(coach);
+    coach.getTeams().remove(team);
+
+    teamRepository.save(team);
+    coachRepository.save(coach);
+}
+@Override
+public Team addPlayersToTeamByNames(String teamName, List<String> playerNames) {
+    Team team = teamRepository.findByTeamName(teamName)
+        .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
+    
+    List<Player> playersToAdd = new ArrayList<>();
+    for (String playerName : playerNames) {
+        Player player = playerRepository.findFirstByLeagalefullnameIgnoreCase(playerName)
+            .orElseThrow(() -> new RuntimeException("Player with name '" + playerName + "' not found"));
+        playersToAdd.add(player);
+    }
+
+    // Assuming a method to set the list of players directly doesn't exist, each player is added individually.
+    for (Player player : playersToAdd) {
+        player.setTeam(team); // Set the team for each player
+        playerRepository.save(player); // Update each player in the database
+    }
+    
+    return team; // Return the updated team with its new players
+}
+@Override
+public Team removePlayersFromTeamByNames(String teamName, List<String> playerNames) {
+    Team team = teamRepository.findByTeamName(teamName)
+        .orElseThrow(() -> new RuntimeException("Team not found with name: " + teamName));
+
+    playerNames.forEach(playerName -> {
+        Player player = playerRepository.findFirstByLeagalefullnameIgnoreCase(playerName)
+            .orElseThrow(() -> new RuntimeException("Player not found with name: " + playerName));
+        if(player.getTeam().equals(team)) {
+            player.setTeam(null); // Remove the association with the team
+            playerRepository.save(player); // Save the player with the updated team association
+        }
+    });
+
+    return teamRepository.save(team); // Save and return the updated team
 }
 
 }

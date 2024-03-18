@@ -57,4 +57,5 @@ public ResponseEntity<List<Coach>> searchCoachByName(@PathVariable String name) 
     List<Coach> coaches = coachService.searchCoachByName(name);
     return !coaches.isEmpty() ? ResponseEntity.ok(coaches) : ResponseEntity.notFound().build();
 }
+
 }

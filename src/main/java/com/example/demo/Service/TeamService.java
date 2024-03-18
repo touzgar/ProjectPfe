@@ -14,7 +14,11 @@ public interface TeamService {
 	List<Team> searchByTeamName(String teamName);
 	List<String> findParticipatingTournamentsByTeamName(String teamName);
 	Team saveTeamWithClubName(Team team, String clubName);
-	 Team saveTeamWithClubAndCoachName(Team team, String clubName, String coachName);
+/*	 Team saveTeamWithClubAndCoachName(Team team, String clubName, String coachName);*/
+	  Team addCoachToTeam(String teamName, String coachName);
+	  void removeCoachFromTeam(String teamName, String coachName);
+	  Team addPlayersToTeamByNames(String teamName, List<String> playerNames);
+	  Team removePlayersFromTeamByNames(String teamName, List<String> playerNames);
 	
 	
 }

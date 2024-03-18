@@ -2,19 +2,19 @@ package com.example.demo.Model;
 
 
 
+
+
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 
 @Entity
@@ -55,8 +55,18 @@ public void setClubName(String clubName) {
     this.clubName = clubName;
 }
 
-@OneToMany(mappedBy = "coach", cascade = CascadeType.ALL, orphanRemoval = true)
+@ManyToMany(mappedBy = "coaches")
+@JsonIgnore
 private List<Team> teams;
+
+// Getter and setter for teams
+public List<Team> getTeams() {
+    return teams;
+}
+
+public void setTeams(List<Team> teams) {
+    this.teams = teams;
+}
 
 
 public Long getIdCoach() {

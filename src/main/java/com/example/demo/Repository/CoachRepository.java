@@ -11,4 +11,5 @@ import com.example.demo.Model.Coach;
 
 public interface CoachRepository extends JpaRepository<Coach, Long> {
 	List<Coach> findByNameCoach(String nameCoach);
+	
 }

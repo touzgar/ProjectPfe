@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -60,15 +59,27 @@ public class SecurityConfig {
 			}
 		}))
         
-        
         .authorizeRequests(requests -> requests
-        	    .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password", "/reset-password" ).permitAll()
-        	    .requestMatchers("/all", "/addRoleToUser/**", "/getUser/**", "/removeRole/**","/allRoles","/addRole","/deleteUser/**").permitAll()
-        	    .requestMatchers("/api/player/**").hasAnyAuthority("ADMIN","Manager")
-        	    .anyRequest().authenticated())
-        	.addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
-        	.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-  
+        	    .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password","/reset-password", "/logout").permitAll()
+        	    .requestMatchers("/all","/addRoleToUser/**","/getUser/**","/removeRole/**","/deleteUser/**","/addRole","/allRoles").permitAll()
+        	    .requestMatchers("/api/manager/**").permitAll()
+        	    .requestMatchers("/api/achievementPlayer/**").permitAll()
+        	    .requestMatchers("/api/achivementTeam/**").permitAll()
+        	    .requestMatchers("/api/coach/**").permitAll()
+        	    .requestMatchers("/api/competencesAndHistorique/**").permitAll()
+        	    .requestMatchers("/api/contractPlayer/**").permitAll()
+        	    .requestMatchers("/api/player/**").permitAll()
+        	    .requestMatchers("/api/team/**").permitAll()
+        	    .requestMatchers("/api/club/**").permitAll()
+
+        
+        
+        
+        .anyRequest().authenticated())
+        
+        .addFilterBefore(new JWTAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+        
         // Enable this for debugging purposes
      //   http.httpBasic().disable().logout().disable();
 

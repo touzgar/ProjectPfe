@@ -45,7 +45,6 @@ public class PlayerController {
             // Extract and cast all necessary fields from the payload
             String leagalefullname = (String) payload.get("leagalefullname");
             String inGameName = (String) payload.get("inGameName");
-            String teamName = payload.containsKey("teamName") ? (String) payload.get("teamName") : null;
             String countryOfResidence = (String) payload.get("countryOfResidence");
             String discordId = (String) payload.get("discordId");
             String jerseySize = (String) payload.get("jerseySize");
@@ -74,12 +73,7 @@ public class PlayerController {
             player.setDateOfBirth(dateOfBirth);
 
             // Optional team assignment
-            if (teamName != null && !teamName.isEmpty()) {
-                Team team = teamRepository.findByTeamName(teamName)
-                    .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
-                player.setTeam(team);
-            }
-
+          
             // Save the player, with or without a team
             Player savedPlayer = playerRepository.save(player);
             return ResponseEntity.ok(savedPlayer);
@@ -143,13 +137,7 @@ public class PlayerController {
                 existingPlayer.setDateOfBirth(dateOfBirth);
             }
             
-            // Update the team association, if a new team name is provided
-            String newTeamName = (String) payload.get("teamName");
-            if (newTeamName != null && !newTeamName.trim().isEmpty()) {
-                Team newTeam = teamRepository.findByTeamName(newTeamName)
-                              .orElseThrow(() -> new RuntimeException("Team with name '" + newTeamName + "' not found"));
-                existingPlayer.setTeam(newTeam);
-            }
+           
 
             // Now, save the updated player information
             Player updatedPlayer = playerService.updatePlayer(existingPlayer);
