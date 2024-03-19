@@ -14,7 +14,7 @@ public interface TournamentService {
 	List<Tournament> getAllTournaments();
 	Tournament registerTeamsInTournament(String tournamentName, List<String> teamNames);
 	Tournament removeTeamsFromTournament(String tournamentName, List<String> teamNames);
-
+	boolean tournamentNameExists(String tournamentName);
 	   
 	
 }

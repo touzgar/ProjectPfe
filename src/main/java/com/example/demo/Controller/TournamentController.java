@@ -1,8 +1,8 @@
 package com.example.demo.Controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -38,34 +38,27 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
  @PostMapping("/add")
  public ResponseEntity<?> createTournament(@RequestBody Map<String, Object> payload) {
      try {
-         
          String tournamentName = (String) payload.get("tournamentName");
-         String Format = (String) payload.get("Format");
-         Double PrizePool=((Number) payload.get("Prizepool")).doubleValue();
-         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-         Date dateStart = dateFormat.parse((String) payload.get("dateStart"));
-         Date dateEnd = dateFormat.parse((String) payload.get("dateEnd"));
-         Boolean status = (Boolean) payload.get("status");
+         if (tournamentService.tournamentNameExists(tournamentName)) {
+             return ResponseEntity.badRequest().body("Error: Tournament name already exists.");
+         }
 
-        
-
+         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
          Tournament tournament = new Tournament();
          tournament.setTournamentName(tournamentName);
-         tournament.setFormat(Format);
-         tournament.setPrizePool(PrizePool);
-         tournament.setDateEnd(dateEnd);
-         tournament.setDateStart(dateStart);
-         tournament.setStatus(status);
-         
-         // Use the service to handle the logic of adding club and coach by name
-         Tournament savedTournament =  tournamentService.saveTournament(tournament);
+         tournament.setFormat((String) payload.get("Format"));
+         tournament.setPrizePool(((Number) payload.get("Prizepool")).doubleValue());
+         tournament.setDateStart(LocalDateTime.parse((String) payload.get("dateStart"), formatter));
+         tournament.setDateEnd(LocalDateTime.parse((String) payload.get("dateEnd"), formatter));
+         tournament.setStatus((Boolean) payload.get("status"));
+         tournament.setCapacity((Integer) payload.get("capacity"));
+
+         Tournament savedTournament = tournamentService.saveTournament(tournament);
          return ResponseEntity.ok(savedTournament);
      } catch (Exception e) {
-         return ResponseEntity.badRequest().body("Error creating team: " + e.getMessage());
+         return ResponseEntity.badRequest().body("Error creating tournament: " + e.getMessage());
      }
  }
-
-
  @PutMapping("/update/{id}")
  public ResponseEntity<?> updateTeam(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
         try {
@@ -73,7 +66,8 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
             if (existingTournament == null) {
                 return ResponseEntity.notFound().build();
             }
-
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            
             // Update player details from payload
             String tournamentName = (String) payload.get("tournamentName");
             if (tournamentName != null) existingTournament.setTournamentName(tournamentName);
@@ -81,15 +75,16 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
             String Format = (String) payload.get("Format");
             if (Format != null) existingTournament.setFormat(Format);
             
-            
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            if (payload.containsKey("dateEnd")) {
-                Date dateEnd = dateFormat.parse((String) payload.get("dateEnd"));
-                existingTournament.setDateEnd(dateEnd);
-            }
             if (payload.containsKey("dateStart")) {
-                Date dateStart = dateFormat.parse((String) payload.get("dateStart"));
+                String startDateTime = (String) payload.get("dateStart");
+                LocalDateTime dateStart = LocalDateTime.parse(startDateTime, formatter);
                 existingTournament.setDateStart(dateStart);
+            }
+            
+            if (payload.containsKey("dateEnd")) {
+                String endDateTime = (String) payload.get("dateEnd");
+                LocalDateTime dateEnd = LocalDateTime.parse(endDateTime, formatter);
+                existingTournament.setDateEnd(dateEnd);
             }
             if (payload.containsKey("salary")) {
                 Double PrizePool = ((Number) payload.get("PrizePool")).doubleValue();
@@ -99,12 +94,13 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
         	  Boolean status = (Boolean) payload.get("status");
         	  existingTournament.setStatus(status);
           }
+          if (payload.containsKey("capacity")) { // Check for capacity in the payload
+              existingTournament.setCapacity((Integer) payload.get("capacity")); // Update capacity
+          }
           	            	// Now, save the updated player information
             Tournament updatedTournament = tournamentService.UpdateTournament(existingTournament);
 
             return ResponseEntity.ok(updatedTournament);
-        } catch (ParseException e) {
-            return ResponseEntity.badRequest().body("An error occurred parsing date fields: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("An error occurred while updating the team: " + e.getMessage());
         }

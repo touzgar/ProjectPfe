@@ -3,6 +3,7 @@ package com.example.demo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.example.demo.Model.Role;
 import com.example.demo.Model.User;
@@ -10,7 +11,7 @@ import com.example.demo.Service.UserService;
 
 import jakarta.annotation.PostConstruct;
 
-
+@EnableScheduling
 @SpringBootApplication
 public class GarkSportApplication {
 

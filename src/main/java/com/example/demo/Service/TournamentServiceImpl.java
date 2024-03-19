@@ -101,5 +101,8 @@ public class TournamentServiceImpl implements TournamentService {
 
 	      return tournamentRepository.save(tournament);
 	  }
+	  public boolean tournamentNameExists(String tournamentName) {
+	        return tournamentRepository.findByTournamentName(tournamentName).isPresent();
+	    }
 
 }
