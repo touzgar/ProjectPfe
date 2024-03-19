@@ -1,23 +1,31 @@
 package com.example.demo.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.Model.Defi;
 import com.example.demo.Model.Team;
 import com.example.demo.Model.Tournament;
+import com.example.demo.Repository.DefiRepository;
 import com.example.demo.Repository.TeamRepository;
 import com.example.demo.Repository.TournamentRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class TournamentServiceImpl implements TournamentService {
 	@Autowired
 	TournamentRepository tournamentRepository;
 	 @Autowired
-	    private TeamRepository teamRepository;
+	 TeamRepository teamRepository;
+	 @Autowired
+	 DefiRepository defiRepository;
 	@Override
 	public Tournament saveTournament(Tournament tournament) {
 		
@@ -36,11 +44,21 @@ public class TournamentServiceImpl implements TournamentService {
 	}
 
 	@Override
-	public void deleteTournamentById(Long idtournament) {
-		tournamentRepository.deleteById(idtournament);
-		
-	}
+    @Transactional
+    public void deleteTournamentById(Long idtournament) {
+        // First, get the tournament
+        Tournament tournament = tournamentRepository.findById(idtournament)
+                .orElseThrow(() -> new RuntimeException("Tournament not found for this id :: " + idtournament));
 
+        // Remove associations with teams
+        for (Team team : tournament.getTeams()) {
+            team.getTournaments().remove(tournament);
+            teamRepository.save(team); // Update the team to remove the association
+        }
+
+        // Now, it's safe to delete the tournament
+        tournamentRepository.deleteById(idtournament);
+    }
 	@Override
 	public Tournament getTournament(Long idtournament) {
 		
@@ -57,35 +75,23 @@ public class TournamentServiceImpl implements TournamentService {
 	    Tournament tournament = tournamentRepository.findByTournamentName(tournamentName)
 	            .orElseThrow(() -> new RuntimeException("Tournament with name '" + tournamentName + "' not found"));
 
-	    // Fetch all teams in the tournament once to avoid querying inside the loop
-	    List<Team> existingTeams = tournament.getTeams();
-
-	    List<String> alreadyRegistered = new ArrayList<>();
+	    // Check if adding these teams will exceed the tournament's capacity
+	    if (tournament.getTeams().size() + teamNames.size() > tournament.getCapacity()) {
+	        throw new RuntimeException("Cannot add more teams. Tournament capacity exceeded.");
+	    }
 
 	    for (String teamName : teamNames) {
 	        Team team = teamRepository.findByTeamName(teamName)
 	                .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
 
-	        // Check if the team is already registered in the tournament
-	        if (existingTeams.contains(team)) {
-	            alreadyRegistered.add(teamName); // Collect names of already registered teams
-	            continue; // Skip adding this team
+	        // Assuming you want to avoid adding duplicate teams
+	        if (!tournament.getTeams().contains(team)) {
+	            tournament.getTeams().add(team);
+	            team.getTournaments().add(tournament);
 	        }
-
-	        tournament.getTeams().add(team); // Add the team to the tournament
-	        team.getTournaments().add(tournament); // This might not be necessary depending on your CascadeType settings
 	    }
 
-	    Tournament updatedTournament = tournamentRepository.save(tournament);
-
-	    // Handle already registered teams as needed
-	    if (!alreadyRegistered.isEmpty()) {
-	        String message = "Some teams are already registered and were not added again: " + String.join(", ", alreadyRegistered);
-	        // You might want to log this message or handle it differently
-	        System.out.println(message);
-	    }
-
-	    return updatedTournament;
+	    return tournamentRepository.save(tournament);
 	}
 	  @Override
 	  public Tournament removeTeamsFromTournament(String tournamentName, List<String> teamNames) {
@@ -104,5 +110,54 @@ public class TournamentServiceImpl implements TournamentService {
 	  public boolean tournamentNameExists(String tournamentName) {
 	        return tournamentRepository.findByTournamentName(tournamentName).isPresent();
 	    }
+	  @Override
+	  public Tournament addMatchAndEnsureTeamRegistration(String tournamentName, String matchDescription, LocalDateTime matchDateTime) {
+	      // Extract team names from the match description
+	      String[] teamNames = matchDescription.split(" vs ");
+	      if (teamNames.length != 2) {
+	          throw new IllegalArgumentException("Match description must be in the format 'Team1 vs Team2'.");
+	      }
+
+	      // Fetch the tournament
+	      Tournament tournament = tournamentRepository.findByTournamentName(tournamentName)
+	              .orElseThrow(() -> new RuntimeException("Tournament not found: " + tournamentName));
+
+	      // Verify both teams are registered in the tournament
+	      for (String teamName : teamNames) {
+	          Team team = teamRepository.findByTeamName(teamName)
+	                  .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
+
+	          if (!tournament.getTeams().contains(team)) {
+	              throw new IllegalArgumentException("Team " + teamName + " is not registered in the tournament.");
+	          }
+	      }
+
+	      // Proceed to add the match since both teams are registered
+	      Defi newMatch = new Defi();
+	      newMatch.setMatchName(matchDescription); // Storing team names in the match name
+	      newMatch.setDateStart(matchDateTime);
+	      newMatch.setResult(""); // Assuming the result is initially empty
+	      newMatch.setTournament(tournament);
+	      defiRepository.save(newMatch);
+
+	      return tournament;
+	  }
+	  public void deleteMatchFromTournament(Long idDefi) {
+		    Defi defi = defiRepository.findById(idDefi)
+		            .orElseThrow(() -> new RuntimeException("Defi not found for this id :: " + idDefi));
+		    
+		    Tournament tournament = defi.getTournament();
+		    if(tournament != null) {
+		        tournament.getDefi().remove(defi); // Remove the match from the tournament
+		        // Assuming you have a tournamentRepository or similar
+		        tournamentRepository.save(tournament); // Save the tournament to update the association
+		    }
+		    defiRepository.delete(defi); // Finally, delete the defi itself
+		}
+	  @Override
+	  public List<Tournament> getHistoricalTournaments() {
+	      LocalDateTime now = LocalDateTime.now();
+	      return tournamentRepository.findByDateEndBefore(now);
+	  }
 
 }

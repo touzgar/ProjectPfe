@@ -1,5 +1,6 @@
 package com.example.demo.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -15,6 +16,7 @@ public interface TournamentService {
 	Tournament registerTeamsInTournament(String tournamentName, List<String> teamNames);
 	Tournament removeTeamsFromTournament(String tournamentName, List<String> teamNames);
 	boolean tournamentNameExists(String tournamentName);
-	   
-	
+	Tournament addMatchAndEnsureTeamRegistration(String tournamentName, String matchDescription, LocalDateTime matchDateTime);
+	void deleteMatchFromTournament(Long idDefi);
+	 List<Tournament> getHistoricalTournaments();
 }

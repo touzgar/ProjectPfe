@@ -106,10 +106,16 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-public void deleteclub(@PathVariable("id") Long id) {
-	tournamentService.deleteTournamentById(id);
-}
+ @DeleteMapping("/delete/{id}")
+ public ResponseEntity<?> deleteTournament(@PathVariable("id") Long id) {
+     try {
+         tournamentService.deleteTournamentById(id);
+         return ResponseEntity.ok().build();
+     } catch (RuntimeException e) {
+         return ResponseEntity.badRequest().body(e.getMessage());
+     }
+ }
+
     @PostMapping("/registerTeams")
     public ResponseEntity<?> registerTeamsInTournament(@RequestBody Map<String, Object> payload) {
         try {
@@ -132,4 +138,35 @@ public void deleteclub(@PathVariable("id") Long id) {
             return ResponseEntity.badRequest().body("Error removing teams: " + e.getMessage());
         }
 }
+    @PostMapping("/addMatch")
+    public ResponseEntity<?> addMatchToTournament(@RequestBody Map<String, Object> payload) {
+        try {
+            String tournamentName = (String) payload.get("tournamentName");
+            String matchDescription = (String) payload.get("matchDescription"); // "Team1 vs Team2"
+            String matchDateTimeStr = (String) payload.get("matchDateTime");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime matchDateTime = LocalDateTime.parse(matchDateTimeStr, formatter);
+
+            Tournament updatedTournament = tournamentService.addMatchAndEnsureTeamRegistration(tournamentName, matchDescription, matchDateTime);
+            return ResponseEntity.ok(updatedTournament);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error adding match: " + e.getMessage());
+        }
+        
+    }
+    @DeleteMapping("/deleteMatchFromTournament/{idDefi}")
+    public ResponseEntity<?> deleteMatchFromTournament(@PathVariable Long idDefi) {
+        try {
+            tournamentService.deleteMatchFromTournament(idDefi);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @GetMapping("/historical")
+    public ResponseEntity<List<Tournament>> getHistoricalTournaments() {
+        List<Tournament> historicalTournaments = tournamentService.getHistoricalTournaments();
+        return ResponseEntity.ok(historicalTournaments);
+    }
+
 }
