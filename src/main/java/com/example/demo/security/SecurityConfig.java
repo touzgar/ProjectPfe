@@ -69,6 +69,8 @@ public class SecurityConfig {
         	    .requestMatchers("/api/club/**").permitAll()
         	    .requestMatchers("/api/tournament/**").permitAll()
         	    .requestMatchers("/api/defi/**").permitAll()
+        	    .requestMatchers("/api/session/**").permitAll()
+        	    .requestMatchers("/api/scrims/**").permitAll()
 
         
         

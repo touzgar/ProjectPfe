@@ -4,9 +4,13 @@ package com.example.demo.Model;
 
 
 
+
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.GeneratedValue;
@@ -15,9 +19,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "idCoach")
 public class Coach {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,14 +44,7 @@ private String Rapport;
 @JoinColumn(name = "club_id")
 private Club club;
 
-// Getter and setter for club
-public Club getClub() {
-    return club;
-}
 
-public void setClub(Club club) {
-    this.club = club;
-}
 @Transient // This field is not persisted
 private String clubName;
 
@@ -59,44 +65,9 @@ public void setClubName(String clubName) {
 @JsonIgnore
 private List<Team> teams;
 
-// Getter and setter for teams
-public List<Team> getTeams() {
-    return teams;
-}
+@OneToMany(mappedBy = "coach")
+private List<SessionTraining> sessionTrainings;
 
-public void setTeams(List<Team> teams) {
-    this.teams = teams;
-}
-
-
-public Long getIdCoach() {
-	return idCoach;
-}
-public void setIdCoach(Long idCoach) {
-	this.idCoach = idCoach;
-}
-public String getNameCoach() {
-	return nameCoach;
-}
-public void setNameCoach(String nameCoach) {
-	this.nameCoach = nameCoach;
-}
-public String getEmail() {
-	return email;
-}
-public void setEmail(String email) {
-	this.email = email;
-}
-public String getRapport() {
-	return Rapport;
-}
-public void setRapport(String rapport) {
-	Rapport = rapport;
-}
-public Coach() {
-	super();
-	// TODO Auto-generated constructor stub
-}
 
 
 
