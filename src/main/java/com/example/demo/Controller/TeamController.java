@@ -49,11 +49,14 @@ public class TeamController {
 	         String description = (String) payload.get("description");
 	         String clubName = (String) payload.get("clubName");
 	        
-	        
+	         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	          Date dateCreation = dateFormat.parse((String) payload.get("dateCreation"));
+	         
 
 	         Team team = new Team();
 	         team.setTeamName(teamName);
 	         team.setDescription(description);
+	         team.setDateCreation(dateCreation);
 	         
 	         // Use the service to handle the logic of adding club and coach by name
 	         Team savedTeam = teamService.saveTeamWithClubName(team, clubName);
@@ -134,7 +137,7 @@ public class TeamController {
 	// In TeamController.java
 	 @PostMapping("/addPlayersToTeamByNames")
 	 public ResponseEntity<?> addPlayersToTeamByNames(@RequestParam("teamName") String teamName, 
-	                                                   @RequestBody List<String> playerNames) {
+	                                                   @RequestParam("playerNames") List<String> playerNames) {
 	     try {
 	         Team updatedTeam = teamService.addPlayersToTeamByNames(teamName, playerNames);
 	         return ResponseEntity.ok(updatedTeam);
@@ -142,9 +145,10 @@ public class TeamController {
 	         return ResponseEntity.badRequest().body("An error occurred while adding players to team: " + e.getMessage());
 	     }
 	 }
-	 @PostMapping("/removePlayersFromTeamByNames")
+	// Spring Boot Controller
+	 @DeleteMapping("/removePlayersFromTeamByNames")
 	 public ResponseEntity<?> removePlayersFromTeamByNames(@RequestParam("teamName") String teamName, 
-	                                                       @RequestBody List<String> playerNames) {
+	                                                       @RequestParam("playerNames") List<String> playerNames) {
 	     try {
 	         Team updatedTeam = teamService.removePlayersFromTeamByNames(teamName, playerNames);
 	         return ResponseEntity.ok(updatedTeam);
@@ -152,6 +156,7 @@ public class TeamController {
 	         return ResponseEntity.badRequest().body("An error occurred while removing players from team: " + e.getMessage());
 	     }
 	 }
+
 
 
 	 

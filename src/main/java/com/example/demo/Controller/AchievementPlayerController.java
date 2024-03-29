@@ -1,12 +1,17 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Model.AchievementPlayer;
+import com.example.demo.Model.Team;
 import com.example.demo.Service.AchievementPlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/achievementPlayer")
@@ -24,8 +29,8 @@ public class AchievementPlayerController {
             return ResponseEntity.badRequest().body(null); // Consider customizing the error handling
         }
     }
-
-
+    
+  
     @GetMapping("/getAll")
     public List<AchievementPlayer> getAllAchievementPlayers() {
         return service.getAllAchievementPlayers();
@@ -38,20 +43,69 @@ public class AchievementPlayerController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<AchievementPlayer> updateAchievementPlayer(@PathVariable Long id, @RequestBody AchievementPlayer achievementPlayerDetails) {
-        AchievementPlayer existingAchievementPlayer = service.getAchievementPlayerById(id);
-        if (existingAchievementPlayer != null) {
-            existingAchievementPlayer.setPlayerName(achievementPlayerDetails.getPlayerName());
-            existingAchievementPlayer.setTrophie(achievementPlayerDetails.getTrophie());
-            existingAchievementPlayer.setDateAchievement(achievementPlayerDetails.getDateAchievement());
-            existingAchievementPlayer.setStatus(achievementPlayerDetails.getStatus());
+    public ResponseEntity<?> updateAchievementPlayer(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
+        try {
+            AchievementPlayer existingAchievementPlayer = service.getAchievementPlayerById(id);
+            if (existingAchievementPlayer == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Update AchievementPlayer details from payload
+            String playerName = (String) payload.get("playerName");
+            if (playerName != null) existingAchievementPlayer.setPlayerName(playerName);
+            
+            List<String> trophie = (List<String>) payload.get("trophie");
+            if (trophie != null) existingAchievementPlayer.setTrophie(trophie);
+            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            if (payload.containsKey("dateAchievement")) {
+                Date dateAchievement = dateFormat.parse((String) payload.get("dateAchievement"));
+                existingAchievementPlayer.setDateAchievement(dateAchievement);
+            }
+            
+            // Now, save the updated AchievementPlayer information
             AchievementPlayer updatedAchievementPlayer = service.updateAchievementPlayer(existingAchievementPlayer);
+
             return ResponseEntity.ok(updatedAchievementPlayer);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().body("An error occurred parsing date fields: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("An error occurred while updating the AchievementPlayer: " + e.getMessage());
         }
     }
 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAchievementPlayer(@PathVariable Long id) {

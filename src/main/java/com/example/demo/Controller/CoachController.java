@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.Model.Club;
 import com.example.demo.Model.Coach;
 import com.example.demo.Service.CoachService;
 
@@ -52,10 +55,13 @@ public ResponseEntity<Void> deleteCoach(@PathVariable Long id) {
     coachService.deleteCoachById(id);
     return ResponseEntity.ok().build();
 }
-@GetMapping("/searchByName/{name}")
+/*@GetMapping("/searchByName/{name}")
 public ResponseEntity<List<Coach>> searchCoachByName(@PathVariable String name) {
     List<Coach> coaches = coachService.searchCoachByName(name);
     return !coaches.isEmpty() ? ResponseEntity.ok(coaches) : ResponseEntity.notFound().build();
+}*/
+@RequestMapping(value = "/search", method = RequestMethod.GET)
+public List<Coach> searchCoachs(@RequestParam("name") String coachName) {
+    return coachService.searchCoachByName(coachName);
 }
-
 }

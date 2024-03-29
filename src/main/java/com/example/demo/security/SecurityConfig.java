@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -71,6 +72,18 @@ public class SecurityConfig {
         	    .requestMatchers("/api/defi/**").permitAll()
         	    .requestMatchers("/api/session/**").permitAll()
         	    .requestMatchers("/api/scrims/**").permitAll()
+        	    .requestMatchers("/api/tournament/addMatch").permitAll()
+        	    .requestMatchers("/api/achievementPlayer/**").permitAll()
+        	  //  .requestMatchers("/api/contractPlayer/**").permitAll()
+        	    .requestMatchers("/api/contractPlayer/add").hasAnyAuthority("ADMIN","USER")
+        	    //.requestMatchers("/api/achievementPlayer/add").hasAnyAuthority("ADMIN","USER")
+        	    .requestMatchers("/api/sponsor/**").permitAll()
+        	    .requestMatchers("/api/sponsorContract/**").permitAll()
+        	    .requestMatchers("/api/ressource/**").permitAll()
+        	    .requestMatchers("/api/materiel/**").permitAll()
+        	    .requestMatchers("/api/logiciel/**").permitAll()
+        	    .requestMatchers("/api/installation/**").permitAll()
+              	 
 
         
         

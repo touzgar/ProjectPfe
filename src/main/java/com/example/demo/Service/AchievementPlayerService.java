@@ -1,6 +1,8 @@
 package com.example.demo.Service;
 
 import com.example.demo.Model.AchievementPlayer;
+import com.example.demo.Model.Team;
+
 import java.util.List;
 
 public interface AchievementPlayerService {
@@ -9,5 +11,4 @@ public interface AchievementPlayerService {
     void deleteAchievementPlayerById(Long id);
     AchievementPlayer getAchievementPlayerById(Long id);
     List<AchievementPlayer> getAllAchievementPlayers();
-   
 }

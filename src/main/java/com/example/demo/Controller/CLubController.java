@@ -45,13 +45,15 @@ public class CLubController {
 	         
 	         String description = (String) payload.get("description");
 	         String clubName = (String) payload.get("clubName");
-	        
+	         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	          Date dateCreation = dateFormat.parse((String) payload.get("dateCreation"));
+	           
 	        
 
 	         Club club = new Club();
 	         club.setClubName (clubName);
 	         club.setDescription(description);
-	         
+	         club.setDateCreation(dateCreation);
 	         // Use the service to handle the logic of adding club and coach by name
 	         Club savedClub = clubService.saveClub(club);
 	         return ResponseEntity.ok(savedClub);

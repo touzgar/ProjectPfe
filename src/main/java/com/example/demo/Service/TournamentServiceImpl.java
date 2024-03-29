@@ -3,6 +3,7 @@ package com.example.demo.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -111,37 +112,38 @@ public class TournamentServiceImpl implements TournamentService {
 	        return tournamentRepository.findByTournamentName(tournamentName).isPresent();
 	    }
 	  @Override
-	  public Tournament addMatchAndEnsureTeamRegistration(String tournamentName, String matchDescription, LocalDateTime matchDateTime) {
-	      // Extract team names from the match description
-	      String[] teamNames = matchDescription.split(" vs ");
-	      if (teamNames.length != 2) {
-	          throw new IllegalArgumentException("Match description must be in the format 'Team1 vs Team2'.");
-	      }
+	  public Tournament addMatchAndEnsureTeamRegistration(String tournamentName, String matchDescription, Date matchDateTime) {
+	        // Extract team names from the match description
+	        String[] teamNames = matchDescription.split(" vs ");
+	        if (teamNames.length != 2) {
+	            throw new IllegalArgumentException("Match description must be in the format 'Team1 vs Team2'.");
+	        }
 
-	      // Fetch the tournament
-	      Tournament tournament = tournamentRepository.findByTournamentName(tournamentName)
-	              .orElseThrow(() -> new RuntimeException("Tournament not found: " + tournamentName));
+	        // Fetch the tournament
+	        Tournament tournament = tournamentRepository.findByTournamentName(tournamentName)
+	                .orElseThrow(() -> new RuntimeException("Tournament not found: " + tournamentName));
 
-	      // Verify both teams are registered in the tournament
-	      for (String teamName : teamNames) {
-	          Team team = teamRepository.findByTeamName(teamName)
-	                  .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
+	        // Verify both teams are registered in the tournament
+	        for (String teamName : teamNames) {
+	            Team team = teamRepository.findByTeamName(teamName)
+	                    .orElseThrow(() -> new RuntimeException("Team not found: " + teamName));
 
-	          if (!tournament.getTeams().contains(team)) {
-	              throw new IllegalArgumentException("Team " + teamName + " is not registered in the tournament.");
-	          }
-	      }
+	            if (!tournament.getTeams().contains(team)) {
+	                throw new IllegalArgumentException("Team " + teamName + " is not registered in the tournament.");
+	            }
+	        }
 
-	      // Proceed to add the match since both teams are registered
-	      Defi newMatch = new Defi();
-	      newMatch.setMatchName(matchDescription); // Storing team names in the match name
-	      newMatch.setDateStart(matchDateTime);
-	      newMatch.setResult(""); // Assuming the result is initially empty
-	      newMatch.setTournament(tournament);
-	      defiRepository.save(newMatch);
+	        // Proceed to add the match since both teams are registered
+	        Defi newMatch = new Defi();
+	        newMatch.setMatchName(matchDescription); // Storing team names in the match name
+	        newMatch.setDateStart(matchDateTime); // Now using Date
+	        newMatch.setResult(""); // Assuming the result is initially empty
+	        newMatch.setTournament(tournament);
+	        defiRepository.save(newMatch);
 
-	      return tournament;
-	  }
+	        return tournament;
+	    }	
+	  
 	  public void deleteMatchFromTournament(Long idDefi) {
 		    Defi defi = defiRepository.findById(idDefi)
 		            .orElseThrow(() -> new RuntimeException("Defi not found for this id :: " + idDefi));
@@ -159,5 +161,10 @@ public class TournamentServiceImpl implements TournamentService {
 	      LocalDateTime now = LocalDateTime.now();
 	      return tournamentRepository.findByDateEndBefore(now);
 	  }
+	  @Override
+		public List<Tournament> searchByTournamentName(String tournamentName) {
+		    return tournamentRepository.findByTournamentNameContainingIgnoreCase(tournamentName);
+		}
+
 
 }

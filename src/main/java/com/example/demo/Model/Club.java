@@ -30,9 +30,8 @@ private String description;
 private Date dateCreation;
 
 
-@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+@OneToMany(mappedBy = "club") // Removed orphanRemoval attribute
 private List<Coach> coach;
-
 // Getter and setter for coaches
 public List<Coach> getCoach() {
     return coach;
@@ -44,9 +43,8 @@ public void setCoach(List<Coach> coach) {
 
 
 @JsonManagedReference
-@OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+@OneToMany(mappedBy = "club", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
 private List<Team> teams;
-
 // Getters and setters
 
 public List<Team> getTeams() {

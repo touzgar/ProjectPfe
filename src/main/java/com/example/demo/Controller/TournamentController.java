@@ -1,8 +1,11 @@
 package com.example.demo.Controller;
 
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.Model.Defi;
+import com.example.demo.Model.Player;
+import com.example.demo.Model.Team;
 import com.example.demo.Model.Tournament;
 import com.example.demo.Service.TournamentService;
 
@@ -38,27 +47,39 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
  @PostMapping("/add")
  public ResponseEntity<?> createTournament(@RequestBody Map<String, Object> payload) {
      try {
-         String tournamentName = (String) payload.get("tournamentName");
-         if (tournamentService.tournamentNameExists(tournamentName)) {
-             return ResponseEntity.badRequest().body("Error: Tournament name already exists.");
-         }
+         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+         Date dateStart = dateFormat.parse((String) payload.get("dateStart"));
+         Date dateEnd = dateFormat.parse((String) payload.get("dateEnd"));
 
-         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+         // Other fields remain the same
+         String tournamentName = (String) payload.get("tournamentName");
+         String format = (String) payload.get("format");
+         Double prizePool = ((Number) payload.get("prizePool")).doubleValue();
+         Boolean status = (Boolean) payload.get("status");
+         Integer capacity = (Integer) payload.get("capacity");
+
+         // Use the parsed Date objects
          Tournament tournament = new Tournament();
          tournament.setTournamentName(tournamentName);
-         tournament.setFormat((String) payload.get("Format"));
-         tournament.setPrizePool(((Number) payload.get("Prizepool")).doubleValue());
-         tournament.setDateStart(LocalDateTime.parse((String) payload.get("dateStart"), formatter));
-         tournament.setDateEnd(LocalDateTime.parse((String) payload.get("dateEnd"), formatter));
-         tournament.setStatus((Boolean) payload.get("status"));
-         tournament.setCapacity((Integer) payload.get("capacity"));
+         tournament.setFormat(format);
+         tournament.setPrizePool(prizePool);
+         tournament.setDateStart(dateStart); // Use the parsed Date
+         tournament.setDateEnd(dateEnd); // Use the parsed Date
+         tournament.setStatus(status);
+         tournament.setCapacity(capacity);
 
          Tournament savedTournament = tournamentService.saveTournament(tournament);
          return ResponseEntity.ok(savedTournament);
+     } catch (ParseException e) {
+         return ResponseEntity.badRequest().body("Error parsing date: " + e.getMessage());
      } catch (Exception e) {
          return ResponseEntity.badRequest().body("Error creating tournament: " + e.getMessage());
      }
  }
+ 
+ 
+ 
+ 
  @PutMapping("/update/{id}")
  public ResponseEntity<?> updateTeam(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
         try {
@@ -66,24 +87,19 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
             if (existingTournament == null) {
                 return ResponseEntity.notFound().build();
             }
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             // Update player details from payload
             String tournamentName = (String) payload.get("tournamentName");
             if (tournamentName != null) existingTournament.setTournamentName(tournamentName);
             
             String Format = (String) payload.get("Format");
             if (Format != null) existingTournament.setFormat(Format);
-            
             if (payload.containsKey("dateStart")) {
-                String startDateTime = (String) payload.get("dateStart");
-                LocalDateTime dateStart = LocalDateTime.parse(startDateTime, formatter);
+                Date dateStart = dateFormat.parse((String) payload.get("dateStart"));
                 existingTournament.setDateStart(dateStart);
             }
-            
             if (payload.containsKey("dateEnd")) {
-                String endDateTime = (String) payload.get("dateEnd");
-                LocalDateTime dateEnd = LocalDateTime.parse(endDateTime, formatter);
+                Date dateEnd = dateFormat.parse((String) payload.get("dateEnd"));
                 existingTournament.setDateEnd(dateEnd);
             }
             if (payload.containsKey("salary")) {
@@ -116,45 +132,68 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
      }
  }
 
-    @PostMapping("/registerTeams")
-    public ResponseEntity<?> registerTeamsInTournament(@RequestBody Map<String, Object> payload) {
+ @PostMapping("/registerTeams")
+ public ResponseEntity<?> registerTeamsInTournament(
+         @RequestParam("tournamentName") String tournamentName,
+         @RequestParam("teamNames") List<String> teamNames) {
+     try {
+         Tournament updatedTournament = tournamentService.registerTeamsInTournament(tournamentName, teamNames);
+         return ResponseEntity.ok(updatedTournament);
+     } catch (Exception e) {
+         return ResponseEntity.badRequest().body("Error registering teams: " + e.getMessage());
+     }
+ }
+    @DeleteMapping("/removeTeams")
+    public ResponseEntity<?> removeTeamsFromTournament(@RequestParam("tournamentName") String tournamentName,
+            											@RequestParam("teamNames") List<String> teamNames) {
         try {
-            String tournamentName = (String) payload.get("tournamentName");
-            List<String> teamNames = (List<String>) payload.get("teamNames");
-            Tournament updatedTournament = tournamentService.registerTeamsInTournament(tournamentName, teamNames);
-            return ResponseEntity.ok(updatedTournament);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error registering teams: " + e.getMessage());
-        }
-    }
-    @PostMapping("/removeTeams")
-    public ResponseEntity<?> removeTeamsFromTournament(@RequestBody Map<String, Object> payload) {
-        try {
-            String tournamentName = (String) payload.get("tournamentName");
-            List<String> teamNames = (List<String>) payload.get("teamNames");
-            Tournament updatedTournament = tournamentService.removeTeamsFromTournament(tournamentName, teamNames);
+            Tournament updatedTournament=tournamentService.removeTeamsFromTournament(tournamentName, teamNames);
             return ResponseEntity.ok(updatedTournament);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error removing teams: " + e.getMessage());
         }
 }
+ /*   @DeleteMapping("/removePlayersFromTeamByNames")
+	 public ResponseEntity<?> removePlayersFromTeamByNames(@RequestParam("teamName") String teamName, 
+	                                                       @RequestParam("playerNames") List<String> playerNames) {
+	     try {
+	         Team updatedTeam = teamService.removePlayersFromTeamByNames(teamName, playerNames);
+	         return ResponseEntity.ok(updatedTeam);
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body("An error occurred while removing players from team: " + e.getMessage());
+	     }
+	 }
+*/
+    
+    
+    
+    
+    
     @PostMapping("/addMatch")
     public ResponseEntity<?> addMatchToTournament(@RequestBody Map<String, Object> payload) {
         try {
             String tournamentName = (String) payload.get("tournamentName");
-            String matchDescription = (String) payload.get("matchDescription"); // "Team1 vs Team2"
+            String matchDescription = (String) payload.get("matchDescription");
             String matchDateTimeStr = (String) payload.get("matchDateTime");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            LocalDateTime matchDateTime = LocalDateTime.parse(matchDateTimeStr, formatter);
 
-            Tournament updatedTournament = tournamentService.addMatchAndEnsureTeamRegistration(tournamentName, matchDescription, matchDateTime);
+            // Use SimpleDateFormat to parse the string into Date
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            Date matchDateTime;
+            try {
+                matchDateTime = dateFormat.parse(matchDateTimeStr);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body("Error parsing match date/time: " + e.getMessage());
+            }
+
+            // Assuming the service layer now accepts Date:
+            Tournament updatedTournament = tournamentService.addMatchAndEnsureTeamRegistration(
+                    tournamentName, matchDescription, matchDateTime);
+
             return ResponseEntity.ok(updatedTournament);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error adding match: " + e.getMessage());
         }
-        
-    }
-    @DeleteMapping("/deleteMatchFromTournament/{idDefi}")
+    }    @DeleteMapping("/deleteMatchFromTournament/{idDefi}")
     public ResponseEntity<?> deleteMatchFromTournament(@PathVariable Long idDefi) {
         try {
             tournamentService.deleteMatchFromTournament(idDefi);
@@ -168,5 +207,10 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
         List<Tournament> historicalTournaments = tournamentService.getHistoricalTournaments();
         return ResponseEntity.ok(historicalTournaments);
     }
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public List<Tournament> searchTournament(@RequestParam("name") String tournamentName) {
+        return tournamentService.searchByTournamentName(tournamentName);
+    }
+
 
 }

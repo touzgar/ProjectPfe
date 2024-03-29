@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Model.Club;
+import com.example.demo.Model.Coach;
 import com.example.demo.Repository.ClubRepository;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -35,8 +37,23 @@ public void deleteClub(Club club) {
 @Override
 @Transactional
 public void deleteClubById(Long idClub) {
-	clubRepository.deleteById(idClub);
+    Club club = clubRepository.findById(idClub)
+            .orElseThrow(() -> new EntityNotFoundException("Club not found with id: " + idClub));
+
+    // Iterate through each coach and set their club to null before deleting the club
+    List<Coach> coaches = club.getCoach();
+    if (coaches != null) {
+        for (Coach coach : coaches) {
+            coach.setClub(null);
+            // If you have a coachRepository, save the coach here
+            // e.g., coachRepository.save(coach);
+        }
+    }
+
+    // Now, delete the club
+    clubRepository.deleteById(idClub);
 }
+
 
 @Override
 public Club getClub(Long idClub) {

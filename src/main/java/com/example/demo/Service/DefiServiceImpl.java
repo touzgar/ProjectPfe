@@ -1,12 +1,14 @@
 package com.example.demo.Service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.Model.Club;
 import com.example.demo.Model.Defi;
 import com.example.demo.Model.Team;
 import com.example.demo.Model.Tournament;
@@ -22,7 +24,7 @@ public class DefiServiceImpl implements DefiService {
 	}
 
 	@Override
-	public Defi updateDefi(Long idDefi, String newMatchName, LocalDateTime newDateStart, String newResult) {
+	public Defi updateDefi(Long idDefi, String newMatchName, Date newDateStart, String newResult) {
 	    Defi defi = defiRepository.findById(idDefi)
 	            .orElseThrow(() -> new RuntimeException("Defi not found for this id :: " + idDefi));
 	    
@@ -75,5 +77,9 @@ public class DefiServiceImpl implements DefiService {
         LocalDateTime now = LocalDateTime.now();
         return defiRepository.findByDateStartBefore(now);
     }
+	@Override
+	public List<Defi> searchByMatchName(String matchName) {
+	    return defiRepository.findByMatchNameContainingIgnoreCase(matchName);
+	}
 
 }

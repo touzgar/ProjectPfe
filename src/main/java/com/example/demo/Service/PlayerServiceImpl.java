@@ -77,4 +77,8 @@ public Player savePlayerWithTeamName(Player player, String teamName) {
 
      
       }
+      @Override
+      public List<Player> searchByPlayerName(String playerName) {
+          return playerRepository.findByLeagalefullname(playerName);
+      }
 }

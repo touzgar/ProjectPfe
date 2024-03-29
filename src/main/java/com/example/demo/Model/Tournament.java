@@ -1,7 +1,7 @@
 package com.example.demo.Model;
 
 import java.time.LocalDateTime;
-
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -29,14 +29,14 @@ import lombok.NoArgsConstructor;
 public class Tournament {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long idTournament;
-	private String tournamentName;
-	private LocalDateTime dateStart;
-	private LocalDateTime dateEnd;
-	private String Format;
-	private Double PrizePool;
-	private Boolean status;
-	private int capacity;
+private Long idTournament;
+private String tournamentName;
+private Date dateStart; // Changed from LocalDateTime
+private Date dateEnd; // Changed from LocalDateTime
+private String Format;
+private Double PrizePool;
+private Boolean status;
+private int capacity;
 	
 	
 	

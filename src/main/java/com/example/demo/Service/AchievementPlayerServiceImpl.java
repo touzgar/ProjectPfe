@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import com.example.demo.Model.AchievementPlayer;
 import com.example.demo.Model.Player;
+import com.example.demo.Model.Team;
 import com.example.demo.Repository.AchievementPlayerRepository;
 import com.example.demo.Repository.PlayerRepository;
 
@@ -17,7 +18,6 @@ public class AchievementPlayerServiceImpl implements AchievementPlayerService {
 
     @Autowired
     private PlayerRepository playerRepository;
-    
     @Override
     public AchievementPlayer createAchievementPlayer(AchievementPlayer achievementPlayer) {
         String playerName = achievementPlayer.getPlayerName();
@@ -26,7 +26,6 @@ public class AchievementPlayerServiceImpl implements AchievementPlayerService {
         achievementPlayer.setPlayer(player);
         return repository.save(achievementPlayer);
     }
-
     
     
     
@@ -52,3 +51,13 @@ public class AchievementPlayerServiceImpl implements AchievementPlayerService {
         return repository.findAll();
     }
 }
+    
+  /*  @Override
+    public AchievementPlayer saveAchivementWithPlayerName(AchievementPlayer achivementPlayer, String playerName){
+        return playerRepository.findFirstByLeagalefullnameIgnoreCase(playerName).map(player -> {
+            achivementPlayer.setPlayerName(playerName);
+            return repository.save(achivement);
+        }).orElseThrow(() -> new RuntimeException("Club with name '" + clubName + "' not found"));
+    }
+}
+    */

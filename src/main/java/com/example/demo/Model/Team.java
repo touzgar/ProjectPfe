@@ -48,8 +48,6 @@ public class Team {
 	private String description;
 	private Date dateCreation;
 	@ElementCollection
-	private List<String> participatingTournaments;
-	@ElementCollection
     private Map<Player, String> rolesAndResponsibilities;
 	
 	public Map<Player, String> getRolesAndResponsibilities() {
@@ -58,21 +56,6 @@ public class Team {
 	public void setRolesAndResponsibilities(Map<Player, String> rolesAndResponsibilities) {
 		this.rolesAndResponsibilities = rolesAndResponsibilities;
 	}
-	@JsonManagedReference
-	
-	
-	 @OneToOne(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private AchivementsTeam achivementsTeam;
-
-    // Getters and setters for achivementsTeam
-
-    public AchivementsTeam getAchivementsTeam() {
-        return achivementsTeam;
-    }
-
-    public void setAchivementsTeam(AchivementsTeam achivementsTeam) {
-        this.achivementsTeam = achivementsTeam;
-    }
 	
 	 @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	    private List<Player> players;
@@ -127,7 +110,13 @@ public class Team {
 	        inverseJoinColumns = @JoinColumn(name = "tournament_id") // Specifies the column for tournament ID in the join table
 	    )
 	    private List<Tournament> tournaments;
+	    
+	    
+	    @ManyToMany(mappedBy = "teams")
+	    private List<Sponsor> sponsors;
 
-	   	
+	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
+	    private List<Ressources> ressources;
+
 
 }

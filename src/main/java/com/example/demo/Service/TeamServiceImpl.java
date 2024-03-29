@@ -50,10 +50,10 @@ public void deleteTeamById(Long idTeam) {
     Team team = teamRepository.findById(idTeam).orElseThrow(() -> new RuntimeException("Team not found for this id :: " + idTeam));
     
     // Disassociate team from its club, if any
-    Club club = team.getClub();
-    if (club != null) {
-        club.setTeams(null);
-        clubRepository.save(club);
+    if (team.getClub() != null) {
+        Club club = team.getClub();
+        club.getTeams().remove(team); // Remove the team from the club's list of teams
+        clubRepository.save(club); // Save the club back to update its state
     }
 
     // Disassociate all players from the team without deleting them

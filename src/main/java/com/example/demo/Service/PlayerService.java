@@ -5,6 +5,7 @@ import java.util.Optional;
 
 
 import com.example.demo.Model.Player;
+import com.example.demo.Model.Team;
 
 
 public interface PlayerService {
@@ -16,6 +17,8 @@ public interface PlayerService {
     List<Player> getAllPlayers();
     Optional<Player> findPlayerByName(String leagalefullname);
     Player savePlayerWithTeamName(Player player, String teamName);
+	List<Player> searchByPlayerName(String playerName);
+
     }
     
     

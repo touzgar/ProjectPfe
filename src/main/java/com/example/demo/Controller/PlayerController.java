@@ -2,7 +2,7 @@ package com.example.demo.Controller;
 
 
 import com.example.demo.Model.Player;
-
+import com.example.demo.Model.Team;
 import com.example.demo.Repository.PlayerRepository;
 
 import com.example.demo.Service.PlayerService;
@@ -159,6 +159,16 @@ public class PlayerController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public List<Player> searchPlayers(@RequestParam("name") String playerName) {
+        return playerService.searchByPlayerName(playerName);
+    }
+
+    
+      
+
+     
 
     
      
