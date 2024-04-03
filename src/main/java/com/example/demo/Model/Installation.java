@@ -28,4 +28,7 @@ public class Installation {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "resourceId")
     private Ressources ressources;
+
+
+	
 }

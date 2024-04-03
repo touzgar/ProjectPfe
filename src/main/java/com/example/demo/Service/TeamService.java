@@ -18,6 +18,6 @@ public interface TeamService {
 	  void removeCoachFromTeam(String teamName, String coachName);
 	  Team addPlayersToTeamByNames(String teamName, List<String> playerNames);
 	  Team removePlayersFromTeamByNames(String teamName, List<String> playerNames);
-	
+	  Team getTeamByName(String teamName);
 	
 }

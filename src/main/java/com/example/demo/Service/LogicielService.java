@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import java.util.List;
 
+
 import com.example.demo.Model.Logiciel;
 
 
@@ -12,4 +13,6 @@ public interface LogicielService {
 	void deleteLogicielById(Long idLogiciel);
 	Logiciel getLogiciel(Long idLogiciel);
 	List<Logiciel> getAllLogiciel();
+	List<Logiciel> searchByLogicielName(String logicielName);
+
 }

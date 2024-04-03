@@ -20,6 +20,7 @@ public class Logiciel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	 private int logicielId;
 	 private String logicielName;
+	 private String Type;
 	 private boolean status;
 	 
 	 

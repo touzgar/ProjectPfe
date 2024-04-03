@@ -1,7 +1,6 @@
 package com.example.demo.Controller;
 
 import com.example.demo.Model.AchievementPlayer;
-import com.example.demo.Model.Team;
 import com.example.demo.Service.AchievementPlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -74,42 +73,17 @@ public class AchievementPlayerController {
         }
     }
 
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAchievementPlayer(@PathVariable Long id) {
         service.deleteAchievementPlayerById(id);
         return ResponseEntity.ok().build();
     }
+    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    public List<AchievementPlayer> searchAchivementsPlayers(@RequestParam("name") String playerName) {
+        return service.searchByPlayerName(playerName);
+    }
+
+    
+    
+    
 }

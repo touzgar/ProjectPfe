@@ -46,5 +46,16 @@ RessourceRepository ressourceRepository;
 		
 		return ressourceRepository.findAll();
 	}
+	@Override
+	public Ressources findRessourcesByName(String resourceName) {
+	    return ressourceRepository.findByResourceName(resourceName)
+	        .orElseThrow(() -> new IllegalArgumentException("Resource with name " + resourceName + " not found"));
+	}
+
+	@Override
+	public List<Ressources> searchByRessourcesName(String ressourcesName) {
+		return ressourceRepository.findByResourceNameContainingIgnoreCase(ressourcesName);
+	}
+
 
 }

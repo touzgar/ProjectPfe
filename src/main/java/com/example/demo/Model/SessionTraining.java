@@ -1,6 +1,7 @@
 package com.example.demo.Model;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -32,8 +33,8 @@ public class SessionTraining {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long idSession;
 		private String sessionName; 
-		private LocalDateTime dateStart;
-		private LocalDateTime dateEnd;
+		private Date dateStart;
+		private Date dateEnd;
 
 		private List<String> objectifs;
 		private String feedbacksEntraineurs;

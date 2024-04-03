@@ -11,4 +11,5 @@ public interface AchievementPlayerService {
     void deleteAchievementPlayerById(Long id);
     AchievementPlayer getAchievementPlayerById(Long id);
     List<AchievementPlayer> getAllAchievementPlayers();
+    List<AchievementPlayer> searchByPlayerName(String playerName);
 }

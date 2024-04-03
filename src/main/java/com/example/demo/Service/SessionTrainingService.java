@@ -1,6 +1,7 @@
 package com.example.demo.Service;
 import java.util.List;
 
+import com.example.demo.Model.Coach;
 import com.example.demo.Model.Player;
 import com.example.demo.Model.SessionTraining;
 
@@ -13,7 +14,9 @@ public interface SessionTrainingService {
 	List<SessionTraining> getAllSessionTrainings();
 	List<SessionTraining> searchBySessionName(String sessionName);
 	SessionTraining createSessionTraining(String coachName, List<String> playerNames, SessionTraining sessionTraining);
+	
 	List<Player> getPlayersBySessionName(String sessionName);
 	SessionTraining removePlayersFromSessionByName(String sessionName, List<String> playerNames);
+	
 
 	 }

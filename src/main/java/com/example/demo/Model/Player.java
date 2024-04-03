@@ -21,12 +21,17 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "idPlayer")
 public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -84,9 +89,7 @@ public class Player {
     private List<CompetencesAndHistorique> competencesAndHistoriques;
 // Getter and Setter
        
-     // Player can have zero or one contract
-    @JsonManagedReference
-    @OneToOne(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true , fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "player", fetch = FetchType.EAGER)
     private ContractPlayer contractPlayer;
     
     public ContractPlayer getContractPlayer() {

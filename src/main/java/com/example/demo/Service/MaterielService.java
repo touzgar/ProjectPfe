@@ -12,5 +12,5 @@ public interface MaterielService {
 	void deleteMaterielById(Long idMateriel);
 	Materiel getMateriel(Long idMateriel);
 	List<Materiel> getAllMateriel();
-	
+	List<Materiel> searchByMaterielName(String materielName);
 }

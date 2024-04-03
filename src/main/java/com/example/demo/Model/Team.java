@@ -117,6 +117,8 @@ public class Team {
 
 	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
 	    private List<Ressources> ressources;
-
+	    
+	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
+	    private List<AchivementTeam> achievementTeams;
 
 }

@@ -2,6 +2,9 @@ package com.example.demo.Model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,11 +21,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@JsonIdentityInfo(
+		  generator = ObjectIdGenerators.PropertyGenerator.class, 
+		  property = "resourceId")
+
 public class Ressources {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private int resourceId;
 		private String resourceName;
+		
 		@OneToMany(mappedBy = "ressources", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
 	    private List<Installation> installations;
 

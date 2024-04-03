@@ -1,9 +1,12 @@
 package com.example.demo.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.Model.Coach;
@@ -81,21 +84,41 @@ public class SessionTrainingServiceImp implements SessionTrainingService {
 
 		        return sessionTrainingRepository.save(sessionTraining);
 		    }
-		 @Override
+		  @Override
+		    
 		    @Transactional
 		    public SessionTraining createSessionTraining(String coachName, List<String> playerNames, SessionTraining sessionTraining) {
-		        Coach coach = coachRepository.findByNameCoachIgnoreCase(coachName)
-		            .orElseThrow(() -> new EntityNotFoundException("Coach not found"));
-		        sessionTraining.setCoach(coach);
-
-		        List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
-		        if (players.isEmpty()) {
-		            throw new EntityNotFoundException("Players not found");
+		        // Fetch coaches by name
+		        List<Coach> coaches = coachRepository.findByNameCoach(coachName);
+		        if (coaches.isEmpty()) {
+		            throw new EntityNotFoundException("Coach not found with name: " + coachName);
+		        } else if (coaches.size() > 1) {
+		            throw new IllegalStateException("Multiple coaches found with name: " + coachName);
 		        }
+		        Coach coach = coaches.get(0); // Safely get the first (and supposedly only) coach
+
+		        // Fetch players by names
+		        List<Player> players = new ArrayList<>();
+		        for (String playerName : playerNames) {
+		            List<Player> foundPlayers = playerRepository.findByLeagalefullnameInIgnoreCase(List.of(playerName));
+		            if (foundPlayers.isEmpty()) {
+		                throw new EntityNotFoundException("Player not found with name: " + playerName);
+		            } else if (foundPlayers.size() > 1) {
+		                throw new IllegalStateException("Multiple players found with name: " + playerName);
+		            }
+		            players.add(foundPlayers.get(0)); // Safely add the found player
+		        }
+
+		        // Assuming sessionTraining is properly constructed
+		        sessionTraining.setCoach(coach);
 		        sessionTraining.setPresencePlayer(players);
 
 		        return sessionTrainingRepository.save(sessionTraining);
 		    }
+		  
+		  
+		  
+		  
 		  @Override
 		    public List<Player> getPlayersBySessionName(String sessionName) {
 		        SessionTraining sessionTraining = sessionTrainingRepository.findBySessionName(sessionName)
@@ -116,4 +139,6 @@ public class SessionTrainingServiceImp implements SessionTrainingService {
 		        sessionTraining.getPresencePlayer().removeAll(playersToRemove);
 		        return sessionTrainingRepository.save(sessionTraining);
 		    }
+
+		
 		   }

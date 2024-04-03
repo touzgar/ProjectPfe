@@ -20,6 +20,7 @@ public class Materiel {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int materielId;
     private String materielName;
+    private String type;
     private boolean status;
     
     

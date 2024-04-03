@@ -50,14 +50,16 @@ public class AchievementPlayerServiceImpl implements AchievementPlayerService {
     public List<AchievementPlayer> getAllAchievementPlayers() {
         return repository.findAll();
     }
+
+
+
+
+
+	@Override
+	public List<AchievementPlayer> searchByPlayerName(String playerName) {
+		// TODO Auto-generated method stub
+		return repository.findByPlayer_LeagalefullnameIgnoreCase(playerName);
+	}
 }
     
-  /*  @Override
-    public AchievementPlayer saveAchivementWithPlayerName(AchievementPlayer achivementPlayer, String playerName){
-        return playerRepository.findFirstByLeagalefullnameIgnoreCase(playerName).map(player -> {
-            achivementPlayer.setPlayerName(playerName);
-            return repository.save(achivement);
-        }).orElseThrow(() -> new RuntimeException("Club with name '" + clubName + "' not found"));
-    }
-}
-    */
+ 

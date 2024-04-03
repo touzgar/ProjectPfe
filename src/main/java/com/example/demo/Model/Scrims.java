@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 public class Scrims extends SessionTraining {
-    
+    private Long idScrims;
     private String description;
     private String niveau;
     private String mode;

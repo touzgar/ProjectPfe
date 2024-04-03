@@ -75,7 +75,7 @@ public class SecurityConfig {
         	    .requestMatchers("/api/tournament/addMatch").permitAll()
         	    .requestMatchers("/api/achievementPlayer/**").permitAll()
         	  //  .requestMatchers("/api/contractPlayer/**").permitAll()
-        	    .requestMatchers("/api/contractPlayer/add").hasAnyAuthority("ADMIN","USER")
+        	    .requestMatchers("/api/contractPlayer/**").permitAll()
         	    //.requestMatchers("/api/achievementPlayer/add").hasAnyAuthority("ADMIN","USER")
         	    .requestMatchers("/api/sponsor/**").permitAll()
         	    .requestMatchers("/api/sponsorContract/**").permitAll()
@@ -83,6 +83,7 @@ public class SecurityConfig {
         	    .requestMatchers("/api/materiel/**").permitAll()
         	    .requestMatchers("/api/logiciel/**").permitAll()
         	    .requestMatchers("/api/installation/**").permitAll()
+        	    
               	 
 
         

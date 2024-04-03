@@ -1,6 +1,9 @@
 package com.example.demo.Controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +11,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.Model.Club;
 import com.example.demo.Model.Player;
 import com.example.demo.Model.Scrims;
 import com.example.demo.Model.SessionTraining;
@@ -71,8 +76,9 @@ public class ScrimsController {
 	public Scrims getScrimsById(@PathVariable("id") Long id) {
 		return scrimsService.getScrims(id);
 	}
-	  @PutMapping("/update/{id}")
+	/*  @PutMapping("/update/{id}")
 	    public ResponseEntity<?> updateScrims(@PathVariable Long id, @RequestBody Scrims scrims) {
+		    
 	        try {
 	            Scrims updatedScrims = scrimsService.updateScrims(id, scrims);
 	            return ResponseEntity.ok(updatedScrims);
@@ -82,6 +88,54 @@ public class ScrimsController {
 	            return ResponseEntity.badRequest().body("An error occurred: " + e.getMessage());
 	        }
 	    } 
+	  */
+	  
+	  @PutMapping("/update/{id}")
+		 public ResponseEntity<?> updateScrims(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
+		        try {
+		            Scrims existingScrims = scrimsService.getScrims(id);
+		            if (existingScrims == null) {
+		                return ResponseEntity.notFound().build();
+		            }
+
+		            // Update player details from payload
+		            String description = (String) payload.get("description");
+		            if (description != null) existingScrims.setDescription(description);
+		            
+		            String mode = (String) payload.get("mode");
+		            if (mode != null) existingScrims.setMode(mode);
+		            
+		            String niveau = (String) payload.get("niveau");
+		            if (niveau != null) existingScrims.setNiveau(niveau);
+		            
+		            List<String> specialObjectives = (List<String>) payload.get("specialObjectives");
+		            if(specialObjectives!=null)existingScrims.setSpecialObjectives(specialObjectives);
+		            
+		            List<String> playerNames = (List<String>) payload.get("playerNames");
+		            
+		            
+		            
+		            
+		          	            	// Now, save the updated player information
+		            Scrims updatedScrims = scrimsService.updateScrims(id, existingScrims);
+
+		            return ResponseEntity.ok(updatedScrims);
+		        } catch (Exception e) {
+		            return ResponseEntity.badRequest().body("An error occurred while updating the Scrims: " + e.getMessage());
+		        }
+		    }
+
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
 	 @DeleteMapping("/delete/{id}")
 		public void deleteScrims(@PathVariable("id") Long id) {
 		    	scrimsService.deleteScrimstById(id);

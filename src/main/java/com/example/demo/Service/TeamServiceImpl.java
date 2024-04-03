@@ -187,5 +187,8 @@ public Team removePlayersFromTeamByNames(String teamName, List<String> playerNam
 
     return teamRepository.save(team); // Save and return the updated team
 }
-
+@Override
+public Team getTeamByName(String teamName) {
+    return teamRepository.findByTeamName(teamName).orElse(null);
+}
 }

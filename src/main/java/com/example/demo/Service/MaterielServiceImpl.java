@@ -47,4 +47,10 @@ public class MaterielServiceImpl implements MaterielService {
     public List<Materiel> getAllMateriel() {
         return materielRepository.findAll();
     }
+
+	@Override
+	public List<Materiel> searchByMaterielName(String materielName) {
+		
+		return materielRepository.findByMaterielNameContainingIgnoreCase(materielName);
+	}
 }

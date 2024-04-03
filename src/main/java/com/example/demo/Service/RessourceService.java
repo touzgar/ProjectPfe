@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import java.util.List;
 
+
 import com.example.demo.Model.Ressources;
 
 
@@ -12,5 +13,9 @@ public interface RessourceService {
 	void deleteRessourceById(Long idRessource);
 	Ressources getRessource(Long idRessource);
 	List<Ressources> getAllRessources();
+	// In RessourceService.java
+	Ressources findRessourcesByName(String resourceName);
+	List<Ressources> searchByRessourcesName(String ressourcesName);
+
 	
 }

@@ -4,7 +4,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.Model.Installation;
 import com.example.demo.Model.Logiciel;
 import com.example.demo.Repository.LogicielRepository;
 
@@ -47,5 +51,12 @@ LogicielRepository logicielRepository;
 		return logicielRepository.findAll();
 		
 	}
+
+	@Override
+	public List<Logiciel> searchByLogicielName(String logicielName) {
+
+		return logicielRepository.findByLogicielNameContainingIgnoreCase(logicielName);
+	}
+	
 
 }

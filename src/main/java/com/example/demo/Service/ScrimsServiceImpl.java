@@ -1,7 +1,10 @@
 package com.example.demo.Service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,35 +29,46 @@ public class ScrimsServiceImpl implements ScrimsService {
 	PlayerRepository playerRepository;
 	@Autowired
 	CoachRepository coachRepository;
-	@Override
-	@Transactional
-	public Scrims createScrimsWithDetails(String sessionName, String dateStart, String dateEnd, 
-	                                      String feedbacksEntraineurs, List<String> objectivesNames, 
-	                                      List<String> playerNames, String coachName, 
-	                                      String description, String niveau, String mode, List<String> specialObjectives) {
-		Coach coach = coachRepository.findByNameCoachIgnoreCase(coachName)
-			    .orElseThrow(() -> new EntityNotFoundException("Coach not found with name: " + coachName));
+	 @Override
+	    @Transactional
+	    public Scrims createScrimsWithDetails(String sessionName, String dateStringStart, String dateStringEnd, 
+	                                          String feedbacksEntraineurs, List<String> objectivesNames, 
+	                                          List<String> playerNames, String coachName, 
+	                                          String description, String niveau, String mode, List<String> specialObjectives) {
+	        // Parsing string dates to Date objects
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	        Date dateStart = null;
+	        Date dateEnd = null;
+	        try {
+	            dateStart = dateFormat.parse(dateStringStart);
+	            dateEnd = dateFormat.parse(dateStringEnd);
+	        } catch (ParseException e) {
+	            throw new RuntimeException("Error parsing date fields: " + e.getMessage());
+	        }
 
-			List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
-			if (players.size() != playerNames.size()) {
-			    throw new EntityNotFoundException("One or more players not found by names: " + playerNames);
-			}
-	    Scrims scrims = new Scrims();
-	    scrims.setSessionName(sessionName);
-	    scrims.setDateStart(LocalDateTime.parse(dateStart));
-	    scrims.setDateEnd(LocalDateTime.parse(dateEnd));
-	    scrims.setFeedbacksEntraineurs(feedbacksEntraineurs);
-	    scrims.setObjectifs(objectivesNames); // Ensure your entity is set up to handle this
-	    scrims.setDescription(description);
-	    scrims.setNiveau(niveau);
-	    scrims.setMode(mode);
-	    scrims.setSpecialObjectives(specialObjectives); // Ensure your entity is set up to handle this
-	    scrims.setScrimsPlayers(players);
-	    scrims.setCoach(coach);
-	    
-	    return scrimsRepository.save(scrims);
-	}
-	  @Override
+	        Coach coach = coachRepository.findByNameCoachIgnoreCase(coachName)
+	                .orElseThrow(() -> new EntityNotFoundException("Coach not found with name: " + coachName));
+
+	        List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
+	        if (players.isEmpty()) {
+	            throw new EntityNotFoundException("One or more players not found by names: " + playerNames);
+	        }
+
+	        Scrims scrims = new Scrims();
+	        scrims.setSessionName(sessionName);
+	        scrims.setDateStart(dateStart);
+	        scrims.setDateEnd(dateEnd);
+	        scrims.setFeedbacksEntraineurs(feedbacksEntraineurs);
+	        scrims.setObjectifs(objectivesNames); // Ensure your entity is set up to handle List<String>
+	        scrims.setDescription(description);
+	        scrims.setNiveau(niveau);
+	        scrims.setMode(mode);
+	        scrims.setSpecialObjectives(specialObjectives); // Ensure your entity is set up to handle List<String>
+	        scrims.setScrimsPlayers(players);
+	        scrims.setCoach(coach);
+
+	        return scrimsRepository.save(scrims);
+	    }	  @Override
 	    @Transactional
 	    public Scrims updateScrims(Long id, Scrims scrimsDetails) {
 	        Scrims existingScrims = scrimsRepository.findById(id)

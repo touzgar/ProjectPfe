@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.Model.Installation;
 import com.example.demo.Repository.InstallationsRepository;
@@ -28,11 +29,15 @@ InstallationsRepository installationsRepository;
 		
 	}
 
-	@Override
-	public void deleteInstallationById(Long idInstallation) {
-		installationsRepository.deleteById(idInstallation);
-		
-	}
+	 @Override
+	    @Transactional
+	    public void deleteInstallationById(Long idInstallation) {
+	        boolean exists = installationsRepository.existsById(idInstallation);
+	        if (!exists) {
+	            throw new RuntimeException("Installation not found for this id :: " + idInstallation);
+	        }
+	        installationsRepository.deleteById(idInstallation);
+	    }
 
 	@Override
 	public Installation getInstallation(Long idInstallation) {
@@ -45,5 +50,14 @@ InstallationsRepository installationsRepository;
 		
 		return installationsRepository.findAll();
 	}
+	// In RessourceServiceImpl.java
+
+	@Override
+	public List<Installation> searchByInstallationName(String installationName) {
+		
+		return installationsRepository.findByInstallationNameContainingIgnoreCase(installationName);
+	}
+	
+
 
 }
