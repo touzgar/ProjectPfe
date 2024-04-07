@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -209,4 +210,69 @@ private PasswordResetTokenRepository passwordResetTokenRepository;
 	    user.getRoles().removeIf(r -> r.getRole().equals(roleName));
 	    return userRepository.save(user);
 	}
+	// In UserServiceImpl.java
+	@Override
+    public User addUserWithRole(String username, String password, String email, String roleName) {
+        if (userRepository.searchByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("User already exists!");
+        }
+        if (!roleName.equalsIgnoreCase("manager") && !roleName.equalsIgnoreCase("admin")) {
+            throw new RuntimeException("Role must be either 'manager' or 'admin'");
+        }
+
+        Role role = roleRepository.findByRole(roleName);
+        if (role == null) {
+            throw new RuntimeException("Role not found");
+        }
+
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setEmail(email);
+        newUser.setPassword(bCryptPasswordEncoder.encode(password)); // Encrypting password
+        newUser.setRoles(Collections.singletonList(role));
+        newUser.setEnabled(true);
+
+        User savedUser = userRepository.save(newUser);
+
+        // Send email with credentials
+        sendCredentialsEmail(newUser.getEmail(), newUser.getUsername(), password);
+
+        return savedUser;
+    }
+
+    private void sendCredentialsEmail(String email, String username, String password) {
+        String subject = "Your Account Credentials";
+        String emailBody = "Welcome! Your account has been created. \nUsername: " + username +
+                "\nPassword: " + password +
+                "\nPlease change your password upon your first login.";
+
+        emailSender.emailSend(email, subject, emailBody);
+    }
+	 @Override
+	 public User updateUser(Long userId, User userDetails) {
+	     User user = userRepository.findById(userId)
+	             .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+	     user.setUsername(userDetails.getUsername());
+	     user.setEmail(userDetails.getEmail());
+	     user.setPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
+	     user.setEnabled(userDetails.getEnabled());
+	     // Update other fields as necessary
+
+	     return userRepository.save(user);
+	 }
+
+	 @Override
+	 public void deleteUser(Long userId) {
+	     User user = userRepository.findById(userId)
+	         .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+	     // Clear the roles associated with the user to avoid foreign key constraint failure
+	     user.getRoles().clear();
+	     userRepository.save(user); // Save the user to update the relationship in the database
+
+	     userRepository.deleteById(userId);
+	 }
+
+
 	  }

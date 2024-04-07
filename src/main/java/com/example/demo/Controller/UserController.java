@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -96,7 +97,7 @@ public class UserController {
 	        return userService.findAllUsers();
 	    }
 	  
-	    @DeleteMapping("/deleteUser/{userId}")
+	 /*   @DeleteMapping("/deleteUser/{userId}")
 	    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
 	        try {
 	            userService.deleteUser(userId);
@@ -107,6 +108,7 @@ public class UserController {
 	            return ResponseEntity.badRequest().body("Failed to delete user: " + e.getMessage());
 	        }
 	    }
+	    */
 	   
 	    @PostMapping("/addRoleToUser/{username}")
 	    public ResponseEntity<User> addRoleToUser(@PathVariable String username, @RequestBody Role role) {
@@ -151,6 +153,25 @@ public class UserController {
 	            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 	        }
 	    }
+	 // In UserController.java
+	    @PostMapping("/addUserWithRole")
+	    public ResponseEntity<User> addUserWithRole(@RequestBody RegistrationRequest request) {
+	        User user = userService.addUserWithRole(request.getUsername(), request.getPassword(), request.getEmail(), request.getRole());
+	        return new ResponseEntity<>(user, HttpStatus.CREATED);
+	    }
+	    @PutMapping("/updateUser/{userId}")
+	    public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User userDetails) {
+	        User updatedUser = userService.updateUser(userId, userDetails);
+	        return ResponseEntity.ok(updatedUser);
+	    }
+
+
+	    @DeleteMapping("/deleteUser/{userId}")
+	    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+	        userService.deleteUser(userId);
+	        return ResponseEntity.ok().build();
+	    }
+
 
 	    }
 

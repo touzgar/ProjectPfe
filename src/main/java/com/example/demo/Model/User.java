@@ -29,10 +29,14 @@ private String password;
 private Boolean enabled;//si user active ou inactive
 private String email;
 
-@ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER)///chaque user possede une list de role
-@JoinTable(name="user_role",joinColumns = @JoinColumn(name="userId"),
-		inverseJoinColumns = @JoinColumn(name="roleId"))
-private List<Role>roles;
+@ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+@JoinTable(
+    name = "user_role",
+    joinColumns = @JoinColumn(name = "userId"),
+    inverseJoinColumns = @JoinColumn(name = "roleId")
+)
+private List<Role> roles;
+
 
 
 

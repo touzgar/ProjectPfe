@@ -23,5 +23,9 @@ public interface UserService {
     Role findRoleById(Long id);
     User removeRoleFromUser(long id, Role r);
     User removeRoleFromUserByRoleName(Long userId, String roleName);
+ // In UserService.java
+    User addUserWithRole(String username, String password, String email, String roleName);
+    User updateUser(Long userId, User user);
+    void deleteUser(Long userId);
    
 }

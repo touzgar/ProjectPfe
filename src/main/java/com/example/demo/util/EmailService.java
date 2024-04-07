@@ -32,5 +32,21 @@ public class EmailService implements EmailSender {
 		
 	}
 
-	
+	@Override
+	public void emailSend(String toEmail, String subject, String body) {
+	    try {
+	        MimeMessage mimeMessage = mailSender.createMimeMessage();
+	        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+	        
+	        // Use 'body' instead of 'Email', and 'toEmail' instead of 'to'
+	        helper.setText(body, true); // Set the body of the email
+	        helper.setTo(toEmail); // Set the recipient of the email
+	        helper.setSubject(subject); // Set the subject of the email
+	        helper.setFrom("ghaithslama115@gmail.com"); // Set the sender of the email
+	        
+	        mailSender.send(mimeMessage); // Send the email
+	    } catch (MessagingException e) {
+	        throw new IllegalStateException("Failed to send email", e);
+	    }
+	}
 }

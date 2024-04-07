@@ -82,7 +82,7 @@ public class SecurityConfig {
         	    .requestMatchers("/api/materiel/**").permitAll()
         	    .requestMatchers("/api/logiciel/**").permitAll()
         	    .requestMatchers("/api/installation/**").permitAll()
-        	    .requestMatchers("/allRoles","/addRole","/addRoleToUser/**","/all","/removeRole/**","/deleteUser/**").hasAuthority("ROLE_ADMIN")
+        	    .requestMatchers("/allRoles","/addRole","/addRoleToUser/**","/all","/removeRole/**","/deleteUser/**","/addUserWithRole","/updateUser/**").hasAuthority("ROLE_ADMIN")
         	  
               	 
 
