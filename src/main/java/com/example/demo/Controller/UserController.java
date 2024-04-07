@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -95,13 +96,17 @@ public class UserController {
 	        return userService.findAllUsers();
 	    }
 	  
-
-	    @RequestMapping(path="/deleteUser/{id}",method=RequestMethod.DELETE)
-	    
-	    public void deleteUserById(@PathVariable long id) {
-	        userService.deleteUser(id);
+	    @DeleteMapping("/deleteUser/{userId}")
+	    public ResponseEntity<?> deleteUser(@PathVariable Long userId) {
+	        try {
+	            userService.deleteUser(userId);
+	            return ResponseEntity.ok().body("User deleted successfully.");
+	        } catch (Exception e) {
+	            // Log the exception details for debugging
+	            e.printStackTrace();
+	            return ResponseEntity.badRequest().body("Failed to delete user: " + e.getMessage());
+	        }
 	    }
-
 	   
 	    @PostMapping("/addRoleToUser/{username}")
 	    public ResponseEntity<User> addRoleToUser(@PathVariable String username, @RequestBody Role role) {
@@ -127,17 +132,28 @@ public class UserController {
 	    public Role findRoleById(@PathVariable Long id) {
 	        return userService.findRoleById(id);
 	    }
-	    @RequestMapping(path="removeRole/{id}",method=RequestMethod.POST)
-	    public User removeRole(@PathVariable long id,@RequestBody Role r)
-	    {
-	        return  userService.removeRoleFromUser(id,r);
+	 /*   @RequestMapping(path="removeRole/{id}", method=RequestMethod.DELETE)
+	    public User removeRole(@PathVariable long id, @RequestBody Role r) {
+	        return userService.removeRoleFromUser(id, r);
 	    }
+*/
 	    @PostMapping("/addRole")
 	    public ResponseEntity<Role> addRole(@RequestBody Role role) {
 	        Role savedRole = userService.addRole(role);
 	        return ResponseEntity.ok(savedRole);
 	    }
+	    @DeleteMapping("/removeRoleByName/{userId}")
+	    public ResponseEntity<?> removeRoleByName(@PathVariable Long userId, @RequestParam String roleName) {
+	        try {
+	            User updatedUser = userService.removeRoleFromUserByRoleName(userId, roleName);
+	            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+	        } catch (Exception e) {
+	            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+	        }
+	    }
+
+	    }
 
 
 
-}
+

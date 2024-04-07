@@ -168,9 +168,15 @@ private PasswordResetTokenRepository passwordResetTokenRepository;
 
 	@Override
 	public void deleteUser(long id) {
-		userRepository.deleteAll();
-		
+	    // Check if the user exists in the database
+	    Optional<User> userOptional = userRepository.findById(id);
+	    if (!userOptional.isPresent()) {
+	        throw new RuntimeException("User not found with id: " + id); // You can create a custom exception if you prefer
+	    }
+	    // If the user exists, delete the user by ID
+	    userRepository.deleteById(id);
 	}
+
 
 	@Override
 	public List<Role> findAllRoles() {
@@ -190,5 +196,17 @@ private PasswordResetTokenRepository passwordResetTokenRepository;
 	        List<Role> listOfRoles = user.getRoles();
 	        listOfRoles.remove(r);
 	        userRepository.save(user);
-	        return user;}
+	        return user;
+	        
+	}
+	@Override
+	public User removeRoleFromUserByRoleName(Long userId, String roleName) {
+	    User user = userRepository.findById(userId)
+	            .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+	    Role role = roleRepository.searchByRole(roleName)
+	            .orElseThrow(() -> new RuntimeException("Role not found with name: " + roleName));
+
+	    user.getRoles().removeIf(r -> r.getRole().equals(roleName));
+	    return userRepository.save(user);
+	}
 	  }

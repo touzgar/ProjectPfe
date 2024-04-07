@@ -24,10 +24,10 @@ public class MyUserDetailsService implements UserDetailsService {
 			throw new UsernameNotFoundException("Utilisateur introuvable!");
 		List<GrantedAuthority> auths = new ArrayList<>();//declaration de GrantedAuthority 
 		user.getRoles().forEach(role -> {
-			GrantedAuthority authority = new SimpleGrantedAuthority(role.getRole());
-			auths.add(authority);
-			//all roles of user
+		    GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getRole());
+		    auths.add(authority);
 		});
+
 		return new org.springframework.security.core.userdetails.User(user.getUsername(),user.getPassword(),user.getEnabled(),true,true,true,auths);
 	}
 

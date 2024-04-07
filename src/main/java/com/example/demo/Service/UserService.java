@@ -22,4 +22,6 @@ public interface UserService {
     List<Role> findAllRoles();
     Role findRoleById(Long id);
     User removeRoleFromUser(long id, Role r);
+    User removeRoleFromUserByRoleName(Long userId, String roleName);
+   
 }

@@ -58,22 +58,21 @@ public class SecurityConfig {
         
         .authorizeRequests(requests -> requests
         	    .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password","/reset-password", "/logout").permitAll()
-        	    .requestMatchers("/all","/addRoleToUser/**","/getUser/**","/removeRole/**","/deleteUser/**","/addRole","/allRoles").permitAll()
-        	    .requestMatchers("/api/manager/**").permitAll()
-        	    .requestMatchers("/api/achievementPlayer/**").permitAll()
-        	    .requestMatchers("/api/achivementTeam/**").permitAll()
-        	    .requestMatchers("/api/coach/**").permitAll()
+        	    .requestMatchers("/getUser/**").permitAll()
+        	    .requestMatchers("/api/manager/**").hasAuthority("ROLE_ADMIN")
+        	    .requestMatchers("/api/achievementPlayer/**").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/api/achivementTeam/**").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/api/coach/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/api/competencesAndHistorique/**").permitAll()
-        	    .requestMatchers("/api/contractPlayer/**").permitAll()
-        	    .requestMatchers("/api/player/**").permitAll()
-        	    .requestMatchers("/api/team/**").permitAll()
-        	    .requestMatchers("/api/club/**").permitAll()
-        	    .requestMatchers("/api/tournament/**").permitAll()
-        	    .requestMatchers("/api/defi/**").permitAll()
-        	    .requestMatchers("/api/session/**").permitAll()
-        	    .requestMatchers("/api/scrims/**").permitAll()
+        	    .requestMatchers("/api/contractPlayer/**").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/api/player/**").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/api/team/**").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/api/club/**").hasAuthority("ROLE_ADMIN")
+        	    .requestMatchers("/api/tournament/**","/api/defi/**").permitAll()
+           	    .requestMatchers("/api/session/**","/api/scrims/**").hasAuthority("ROLE_COACH")
+        	    
         	    .requestMatchers("/api/tournament/addMatch").permitAll()
-        	    .requestMatchers("/api/achievementPlayer/**").permitAll()
+        	    .requestMatchers("/api/achievementPlayer/**").hasAuthority("ROLE_Manager")
         	  //  .requestMatchers("/api/contractPlayer/**").permitAll()
         	    .requestMatchers("/api/contractPlayer/**").permitAll()
         	    //.requestMatchers("/api/achievementPlayer/add").hasAnyAuthority("ADMIN","USER")
@@ -83,7 +82,8 @@ public class SecurityConfig {
         	    .requestMatchers("/api/materiel/**").permitAll()
         	    .requestMatchers("/api/logiciel/**").permitAll()
         	    .requestMatchers("/api/installation/**").permitAll()
-        	    
+        	    .requestMatchers("/allRoles","/addRole","/addRoleToUser/**","/all","/removeRole/**","/deleteUser/**").hasAuthority("ROLE_ADMIN")
+        	  
               	 
 
         

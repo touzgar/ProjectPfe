@@ -1,7 +1,13 @@
 package com.example.demo.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.JWT;
@@ -45,8 +51,18 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 	                Algorithm algorithm = Algorithm.HMAC256(SecParams.SECRET);
 	                JWTVerifier verifier = JWT.require(algorithm).build();
 	                DecodedJWT decodedJWT = verifier.verify(jwtToken);
-	                // Further authentication and authorization logic...
-	                filterChain.doFilter(request, response);
+	             // New code starts here
+	             String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
+	             List<GrantedAuthority> authorities = new ArrayList<>();
+	             for (String role : roles) {
+	                 authorities.add(new SimpleGrantedAuthority(role));
+	             }
+	             UsernamePasswordAuthenticationToken authenticationToken = 
+	                 new UsernamePasswordAuthenticationToken(decodedJWT.getSubject(), null, authorities);
+	             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+	             // New code ends here
+	             filterChain.doFilter(request, response);
+
 	            } catch (JWTVerificationException exception) {
 	                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 	                response.sendError(HttpServletResponse.SC_FORBIDDEN, exception.getMessage());
