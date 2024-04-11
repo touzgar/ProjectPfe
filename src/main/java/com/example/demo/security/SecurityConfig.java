@@ -59,7 +59,7 @@ public class SecurityConfig {
         .authorizeRequests(requests -> requests
         	    .requestMatchers("/login", "/register/**", "/verifyEmail/**", "/forgot-password","/reset-password", "/logout").permitAll()
         	    .requestMatchers("/getUser/**").permitAll()
-        	    .requestMatchers("/api/manager/**").hasAuthority("ROLE_ADMIN")
+        	  //  .requestMatchers("/api/manager/**").hasAuthority("ROLE_ADMIN")
         	    .requestMatchers("/api/achievementPlayer/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/api/achivementTeam/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/api/coach/**").hasAuthority("ROLE_Manager")
@@ -82,8 +82,9 @@ public class SecurityConfig {
         	    .requestMatchers("/api/materiel/**").permitAll()
         	    .requestMatchers("/api/logiciel/**").permitAll()
         	    .requestMatchers("/api/installation/**").permitAll()
-        	    .requestMatchers("/allRoles","/addRole","/addRoleToUser/**","/all","/removeRole/**","/deleteUser/**","/addUserWithRole","/updateUser/**").hasAuthority("ROLE_ADMIN")
-        	  
+        	    .requestMatchers("/allRoles","/addRole","/addRoleToUser/**","/all","/removeRoleByName/**","/deleteUser/**","/updateUser/**","/api/image/**").hasAnyAuthority("ROLE_ADMIN","ROLE_Manager")
+        	    .requestMatchers("/addUserss","/specific-roles").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/manager-admin-roles","/addUserWithRole").hasAuthority("ROLE_ADMIN")
               	 
 
         

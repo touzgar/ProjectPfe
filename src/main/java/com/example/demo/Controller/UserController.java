@@ -171,6 +171,25 @@ public class UserController {
 	        userService.deleteUser(userId);
 	        return ResponseEntity.ok().build();
 	    }
+	 // In UserController.java
+	    @PostMapping("/addUserss")
+	    public ResponseEntity<User> addUsersWithRole(@RequestBody RegistrationRequest request) {
+	        User user = userService.addUserWithRoleAndSendCredentials(request.getUsername(), request.getPassword(), request.getEmail(), request.getRole());
+	        return new ResponseEntity<>(user, HttpStatus.CREATED);
+	    }
+	    
+	 // In UserController.java
+	    @GetMapping("/manager-admin-roles")
+	    public ResponseEntity<List<User>> getUsersByManagerAndAdminRoles() {
+	        List<User> users = userService.findUsersByManagerAndAdminRoles();
+	        return ResponseEntity.ok(users);
+	    }
+	    @GetMapping("/specific-roles")
+	    public ResponseEntity<List<User>> getUsersBySpecificRoles() {
+	        List<User> users = userService.findUsersBySpecificRoles();
+	        return ResponseEntity.ok(users);
+	    }
+
 
 
 	    }

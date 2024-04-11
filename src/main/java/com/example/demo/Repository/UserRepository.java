@@ -1,5 +1,6 @@
 package com.example.demo.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,5 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	 void deleteByUserId(@Param("userId") Long userId);
 	 Optional<User> findById(Long id);
 	 Optional<User> searchByUsername(String username);
+	// In UserRepository.java
+	 @Query("SELECT u FROM User u JOIN u.roles r WHERE r.role IN :roles")
+	 List<User> findUsersByRoleNames(@Param("roles") List<String> roles);
+
 
 }

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,9 +14,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.Model.Image;
 import com.example.demo.Model.PasswordResetToken;
 import com.example.demo.Model.Role;
 import com.example.demo.Model.User;
+import com.example.demo.Repository.ImageRepository;
 import com.example.demo.Repository.PasswordResetTokenRepository;
 import com.example.demo.Repository.RoleRepository;
 import com.example.demo.Repository.UserRepository;
@@ -41,7 +44,8 @@ VerificationTokenRepository verificationTokenRepository;
 EmailSender emailSender;
 @Autowired
 private PasswordResetTokenRepository passwordResetTokenRepository;
-
+@Autowired
+ImageRepository imageRepository;
 
 	@Override
 	public User saveUser(User user) {
@@ -212,11 +216,11 @@ private PasswordResetTokenRepository passwordResetTokenRepository;
 	}
 	// In UserServiceImpl.java
 	@Override
-    public User addUserWithRole(String username, String password, String email, String roleName) {
+    public User addUserWithRole (String username, String password, String email, String roleName) {
         if (userRepository.searchByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("User already exists!");
         }
-        if (!roleName.equalsIgnoreCase("manager") && !roleName.equalsIgnoreCase("admin")) {
+        if (roleName == null || (!roleName.trim().equalsIgnoreCase("manager") && !roleName.trim().equalsIgnoreCase("admin"))) {
             throw new RuntimeException("Role must be either 'manager' or 'admin'");
         }
 
@@ -226,6 +230,8 @@ private PasswordResetTokenRepository passwordResetTokenRepository;
         }
 
         User newUser = new User();
+       
+        
         newUser.setUsername(username);
         newUser.setEmail(email);
         newUser.setPassword(bCryptPasswordEncoder.encode(password)); // Encrypting password
@@ -273,6 +279,56 @@ private PasswordResetTokenRepository passwordResetTokenRepository;
 
 	     userRepository.deleteById(userId);
 	 }
+	// In UserServiceImpl.java
+	 @Override
+	 public User addUserWithRoleAndSendCredentials(String username, String password, String email, String roleName) {
+		 if (userRepository.searchByUsername(username).isPresent() || userRepository.findByEmail(email).isPresent()) {
+	            throw new RuntimeException("User already exists!");
+	        }
+	     
+		 if (roleName == null || (!roleName.trim().equalsIgnoreCase("coach") && !roleName.trim().equalsIgnoreCase("player")&&!roleName.trim().equalsIgnoreCase("sponsor"))) {
+	            throw new RuntimeException("Role must be either 'coach' or 'player' or 'sponsor'");
+	        }
+	     
+		 Role role = roleRepository.findByRole(roleName);
+	        if (role == null) {
+	            throw new RuntimeException("Role not found");
+	        }
+	     
+	     User newUser = new User();
+	     newUser.setUsername(username);
+	     newUser.setPassword(bCryptPasswordEncoder.encode(password));
+	     newUser.setEmail(email);
+	     newUser.setEnabled(true);
+	     newUser.setRoles(List.of(role));
+	     
+	     userRepository.save(newUser);
+	     
+	     // Send email
+	     sendCredentialsEmail(email, username, password);
+	     
+	     return newUser;
+	 }
+	// In UserServiceImpl.java
+	 @Override
+	 public List<User> findUsersByManagerAndAdminRoles() {
+	     List<String> specificRoles = List.of("MANAGER", "ADMIN");
+	     List<User> allUsers = findAllUsers();
+	     return allUsers.stream()
+	             .filter(user -> user.getRoles().stream()
+	                     .anyMatch(role -> specificRoles.contains(role.getRole().toUpperCase())))
+	             .collect(Collectors.toList());
+	 }
+	 @Override
+	 public List<User> findUsersBySpecificRoles() {
+	     List<String> specificRoles = List.of("COACH", "SPONSOR", "PLAYER");
+	     List<User> allUsers = findAllUsers();
+	     return allUsers.stream()
+	             .filter(user -> user.getRoles().stream()
+	                     .anyMatch(role -> specificRoles.contains(role.getRole().toUpperCase())))
+	             .collect(Collectors.toList());
+	 }
 
-
+	
+	 
 	  }

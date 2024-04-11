@@ -27,5 +27,10 @@ public interface UserService {
     User addUserWithRole(String username, String password, String email, String roleName);
     User updateUser(Long userId, User user);
     void deleteUser(Long userId);
+ // In UserService.java
+    User addUserWithRoleAndSendCredentials(String username, String password, String email, String roleName);
+    List<User> findUsersByManagerAndAdminRoles();
+    List<User> findUsersBySpecificRoles();
+
    
 }
