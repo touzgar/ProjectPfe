@@ -31,6 +31,8 @@ public interface UserService {
     User addUserWithRoleAndSendCredentials(String username, String password, String email, String roleName);
     List<User> findUsersByManagerAndAdminRoles();
     List<User> findUsersBySpecificRoles();
+    List<User> findUsersByCoachRole();
+
 
    
 }

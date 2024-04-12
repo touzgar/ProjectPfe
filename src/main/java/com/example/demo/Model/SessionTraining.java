@@ -1,6 +1,6 @@
 package com.example.demo.Model;
 
-import java.time.LocalDateTime;
+
 import java.util.Date;
 import java.util.List;
 
@@ -45,5 +45,9 @@ public class SessionTraining {
 		
 	    @ManyToMany
 	    private List<Player> presencePlayer;
+	    @ManyToOne
+	    @JoinColumn(name = "user_id")  // Assuming the user ID is stored in the 'user_id' column
+	    private User user;
+
 
 }

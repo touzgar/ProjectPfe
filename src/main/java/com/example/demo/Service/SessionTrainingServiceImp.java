@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 import com.example.demo.Model.Coach;
 import com.example.demo.Model.Player;
 import com.example.demo.Model.SessionTraining;
+import com.example.demo.Model.User;
 import com.example.demo.Repository.CoachRepository;
 import com.example.demo.Repository.PlayerRepository;
 import com.example.demo.Repository.SessionTrainingRepository;
+import com.example.demo.Repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -27,6 +29,8 @@ public class SessionTrainingServiceImp implements SessionTrainingService {
 	CoachRepository coachRepository;
 	@Autowired
 	PlayerRepository playerRepository;
+	@Autowired
+	UserRepository userRepository;
 		@Override
 		public SessionTraining saveSessionTraining(SessionTraining sessionTraining) {
 				return sessionTrainingRepository.save(sessionTraining);
@@ -64,58 +68,58 @@ public class SessionTrainingServiceImp implements SessionTrainingService {
 
 
 		  @Override
-		    @Transactional
-		    public SessionTraining updateSessionTraining(Long id, String coachName, List<String> playerNames, SessionTraining sessionTrainingDetails) {
-		        SessionTraining sessionTraining = sessionTrainingRepository.findById(id)
-		                .orElseThrow(() -> new EntityNotFoundException("SessionTraining not found with id: " + id));
-		        
-		        sessionTraining.setSessionName(sessionTrainingDetails.getSessionName());
-		        sessionTraining.setDateStart(sessionTrainingDetails.getDateStart());
-		        sessionTraining.setDateEnd(sessionTrainingDetails.getDateEnd());
-		        sessionTraining.setObjectifs(sessionTrainingDetails.getObjectifs());
-		        sessionTraining.setFeedbacksEntraineurs(sessionTrainingDetails.getFeedbacksEntraineurs());
+		  @Transactional
+		  public SessionTraining updateSessionTraining(Long id, String username, List<String> playerNames, SessionTraining sessionTrainingDetails) {
+		      SessionTraining sessionTraining = sessionTrainingRepository.findById(id)
+		              .orElseThrow(() -> new EntityNotFoundException("SessionTraining not found with id: " + id));
 
-		        Coach coach = coachRepository.findByNameCoachIgnoreCase(coachName)
-		            .orElseThrow(() -> new EntityNotFoundException("Coach not found"));
-		        sessionTraining.setCoach(coach);
+		      User user = userRepository.searchByUsername(username)
+		              .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+		      // Check if user has the role of 'coach'
+		      boolean isCoach = user.getRoles().stream()
+		          .anyMatch(role -> role.getRole().equalsIgnoreCase("coach"));
+		      if (!isCoach) {
+		          throw new IllegalArgumentException("User is not a coach");
+		      }
 
-		        List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
-		        sessionTraining.setPresencePlayer(players);
+		      sessionTraining.setUser(user); // Assuming you have changed SessionTraining to reference User instead of Coach
+		      sessionTraining.setSessionName(sessionTrainingDetails.getSessionName());
+		      sessionTraining.setDateStart(sessionTrainingDetails.getDateStart());
+		      sessionTraining.setDateEnd(sessionTrainingDetails.getDateEnd());
+		      sessionTraining.setObjectifs(sessionTrainingDetails.getObjectifs());
+		      sessionTraining.setFeedbacksEntraineurs(sessionTrainingDetails.getFeedbacksEntraineurs());
 
-		        return sessionTrainingRepository.save(sessionTraining);
-		    }
+		      List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
+		      if (players.isEmpty()) {
+		          throw new EntityNotFoundException("Players not found");
+		      }
+		      sessionTraining.setPresencePlayer(players);
+
+		      return sessionTrainingRepository.save(sessionTraining);
+		  }
 		  @Override
-		    
-		    @Transactional
-		    public SessionTraining createSessionTraining(String coachName, List<String> playerNames, SessionTraining sessionTraining) {
-		        // Fetch coaches by name
-		        List<Coach> coaches = coachRepository.findByNameCoach(coachName);
-		        if (coaches.isEmpty()) {
-		            throw new EntityNotFoundException("Coach not found with name: " + coachName);
-		        } else if (coaches.size() > 1) {
-		            throw new IllegalStateException("Multiple coaches found with name: " + coachName);
-		        }
-		        Coach coach = coaches.get(0); // Safely get the first (and supposedly only) coach
+		  @Transactional
+		  public SessionTraining createSessionTraining(String username, List<String> playerNames, SessionTraining sessionTraining) {
+		      User user = userRepository.searchByUsername(username)
+		          .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
 
-		        // Fetch players by names
-		        List<Player> players = new ArrayList<>();
-		        for (String playerName : playerNames) {
-		            List<Player> foundPlayers = playerRepository.findByLeagalefullnameInIgnoreCase(List.of(playerName));
-		            if (foundPlayers.isEmpty()) {
-		                throw new EntityNotFoundException("Player not found with name: " + playerName);
-		            } else if (foundPlayers.size() > 1) {
-		                throw new IllegalStateException("Multiple players found with name: " + playerName);
-		            }
-		            players.add(foundPlayers.get(0)); // Safely add the found player
-		        }
+		      // Check if user has the role of 'coach'
+		      boolean isCoach = user.getRoles().stream()
+		          .anyMatch(role -> role.getRole().equalsIgnoreCase("coach"));
+		      if (!isCoach) {
+		          throw new IllegalArgumentException("User is not a coach");
+		      }
 
-		        // Assuming sessionTraining is properly constructed
-		        sessionTraining.setCoach(coach);
-		        sessionTraining.setPresencePlayer(players);
+		      List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
+		      if (players.isEmpty()) {
+		          throw new EntityNotFoundException("Players not found");
+		      }
 
-		        return sessionTrainingRepository.save(sessionTraining);
-		    }
-		  
+		      sessionTraining.setUser(user);
+		      sessionTraining.setPresencePlayer(players);
+
+		      return sessionTrainingRepository.save(sessionTraining);
+		  }
 		  
 		  
 		  

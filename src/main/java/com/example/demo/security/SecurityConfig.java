@@ -69,7 +69,7 @@ public class SecurityConfig {
         	    .requestMatchers("/api/team/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/api/club/**").hasAuthority("ROLE_ADMIN")
         	    .requestMatchers("/api/tournament/**","/api/defi/**").permitAll()
-           	    .requestMatchers("/api/session/**","/api/scrims/**").hasAuthority("ROLE_COACH")
+           	    .requestMatchers("/api/session/**","/api/scrims/**","/getCoach").hasAnyAuthority("ROLE_COACH","ROLE_Manager")
         	    
         	    .requestMatchers("/api/tournament/addMatch").permitAll()
         	    .requestMatchers("/api/achievementPlayer/**").hasAuthority("ROLE_Manager")

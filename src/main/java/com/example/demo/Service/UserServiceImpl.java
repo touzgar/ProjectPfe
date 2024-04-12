@@ -328,6 +328,11 @@ ImageRepository imageRepository;
 	                     .anyMatch(role -> specificRoles.contains(role.getRole().toUpperCase())))
 	             .collect(Collectors.toList());
 	 }
+	 @Override
+	 public List<User> findUsersByCoachRole() {
+	     return userRepository.findUsersWithRoleCoach();
+	 }
+
 
 	
 	 

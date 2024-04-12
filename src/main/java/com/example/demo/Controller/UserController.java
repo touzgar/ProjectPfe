@@ -189,6 +189,12 @@ public class UserController {
 	        List<User> users = userService.findUsersBySpecificRoles();
 	        return ResponseEntity.ok(users);
 	    }
+	    @GetMapping("/getCoach")
+	    public ResponseEntity<List<User>> getUsersByCoachRole() {
+	        List<User> users = userService.findUsersByCoachRole();
+	        return ResponseEntity.ok(users);
+	    }
+
 
 
 

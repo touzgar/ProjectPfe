@@ -7,7 +7,7 @@ import com.example.demo.Model.SessionTraining;
 
 public interface SessionTrainingService {
 	SessionTraining saveSessionTraining(SessionTraining sessionTraining);
-	SessionTraining updateSessionTraining(Long id, String coachName, List<String> playerNames, SessionTraining sessionTrainingDetails);
+	SessionTraining updateSessionTraining(Long id, String username, List<String> playerNames, SessionTraining sessionTrainingDetails);
 	void deleteSessionTraining(SessionTraining sessionTraining);
 	void deleteSessionTrainingById(Long idSessionTraining);
 	SessionTraining getSessionTraining(Long idSessionTraining);

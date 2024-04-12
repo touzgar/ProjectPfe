@@ -26,8 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.Model.Coach;
 import com.example.demo.Model.Player;
 import com.example.demo.Model.SessionTraining;
+import com.example.demo.Model.User;
 import com.example.demo.Repository.CoachRepository;
 import com.example.demo.Repository.PlayerRepository;
+import com.example.demo.Repository.SessionTrainingRepository;
+import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.PlayerService;
 import com.example.demo.Service.SessionTrainingService;
 
@@ -47,6 +50,10 @@ public class SessionTrainingController {
 	CoachRepository coachRepository;
 	@Autowired
 	PlayerRepository playerRepository;
+	@Autowired
+	UserRepository userRepository;
+	@Autowired
+	SessionTrainingRepository sessionTrainingRepository;
 	 @GetMapping("/getAll")
 		List<SessionTraining> getAllSessionTrainings(){
 				return sessionTrainingService.getAllSessionTrainings();
@@ -66,81 +73,69 @@ public class SessionTrainingController {
 	 
 
 	 @PutMapping("/update/{id}")
-	    public ResponseEntity<?> updateSessionTraining(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
-	        try {
-	            String coachName = (String) payload.get("coachName");
-	            List<String> playerNames = (List<String>) payload.get("playerNames");
-	            SessionTraining sessionTrainingDetails = mapToSessionTraining(payload);
-	            
-	            SessionTraining updatedSessionTraining = sessionTrainingService.updateSessionTraining(
-	                id, coachName, playerNames, sessionTrainingDetails
-	            );
+	 public ResponseEntity<?> updateSessionTraining(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
+	     try {
+	         String username = (String) payload.get("username"); // Assuming username is sent in the payload
+	         List<String> playerNames = (List<String>) payload.get("playerNames");
+	         SessionTraining sessionTrainingDetails = mapToSessionTraining(payload);
 
-	            return ResponseEntity.ok(updatedSessionTraining);
-	        } catch (EntityNotFoundException e) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	        } catch (Exception e) {
-	            return ResponseEntity.badRequest().body("Error updating session training: " + e.getMessage());
-	        }
-	    }
+	         SessionTraining updatedSessionTraining = sessionTrainingService.updateSessionTraining(
+	             id, username, playerNames, sessionTrainingDetails
+	         );
 
-	    private SessionTraining mapToSessionTraining(Map<String, Object> payload) throws ParseException {
-	        SessionTraining sessionTraining = new SessionTraining();
-	        sessionTraining.setSessionName((String) payload.get("sessionName"));
-	        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // Adjust the pattern to match your input
-	        Date dateStart = formatter.parse((String) payload.get("dateStart"));
-	        Date dateEnd = formatter.parse((String) payload.get("dateEnd"));
-	        sessionTraining.setDateStart(dateStart);
-	        sessionTraining.setDateEnd(dateEnd);
-	        sessionTraining.setObjectifs((List<String>) payload.get("objectifs"));
-	        sessionTraining.setFeedbacksEntraineurs((String) payload.get("feedbacksEntraineurs"));
-	        return sessionTraining;
-	    }	 
-	 
-	 
-	    @PostMapping("/add")
-	    public ResponseEntity<?> createSessionTraining(@RequestBody Map<String, Object> payload) {
-	        try {
-	            String coachName = (String) payload.get("coachName");
-	            List<String> playerNames = (List<String>) payload.get("playerNames");
-	            String sessionName = (String) payload.get("sessionName");
+	         return ResponseEntity.ok(updatedSessionTraining);
+	     } catch (EntityNotFoundException e) {
+	         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body("Error updating session training: " + e.getMessage());
+	     }
+	 }
 
-	            // Use SimpleDateFormat to parse the String to Date
-	            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	            Date dateStart = formatter.parse((String) payload.get("dateStart"));
-	            Date dateEnd = formatter.parse((String) payload.get("dateEnd"));
+	 private SessionTraining mapToSessionTraining(Map<String, Object> payload) throws ParseException {
+	     SessionTraining sessionTraining = new SessionTraining();
+	     sessionTraining.setSessionName((String) payload.get("sessionName")); // Update sessionName field
+	     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"); // Adjust the pattern to match your input
+	     Date dateStart = formatter.parse((String) payload.get("dateStart"));
+	     Date dateEnd = formatter.parse((String) payload.get("dateEnd"));
+	     sessionTraining.setDateStart(dateStart);
+	     sessionTraining.setDateEnd(dateEnd);
+	     sessionTraining.setObjectifs((List<String>) payload.get("objectifs"));
+	     sessionTraining.setFeedbacksEntraineurs((String) payload.get("feedbacksEntraineurs"));
+	     return sessionTraining;
+	 }
+	 @PostMapping("/add")
+	 public ResponseEntity<?> createSessionTraining(@RequestBody Map<String, Object> payload) {
+	     try {
+	         if (payload == null || !payload.containsKey("username") || payload.get("username") == null) {
+	             return ResponseEntity.badRequest().body("Username is required but not provided.");
+	         }
 
-	            List<String> objectifs = (List<String>) payload.get("objectifs");
-	            String feedbacksEntraineurs = (String) payload.get("feedbacksEntraineurs");
-	            
-	            Coach coach = coachRepository.findByNameCoachIgnoreCase(coachName)
-	                .orElseThrow(() -> new EntityNotFoundException("Coach not found"));
-	            
-	            List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
-	            if (players.isEmpty()) {
-	                throw new EntityNotFoundException("Players not found");
-	            }
-	            
-	            SessionTraining sessionTraining = new SessionTraining();
-	            sessionTraining.setSessionName(sessionName);
-	            sessionTraining.setDateStart(dateStart);
-	            sessionTraining.setDateEnd(dateEnd);
-	            sessionTraining.setObjectifs(objectifs);
-	            sessionTraining.setFeedbacksEntraineurs(feedbacksEntraineurs);
-	            sessionTraining.setCoach(coach);
-	            sessionTraining.setPresencePlayer(players);
-	            
-	            SessionTraining savedSessionTraining = sessionTrainingService.createSessionTraining(coachName, playerNames, sessionTraining);
-	            return ResponseEntity.ok(savedSessionTraining);
-	            
-	        } catch (ParseException e) {
-	            return ResponseEntity.badRequest().body("Error parsing date fields: " + e.getMessage());
-	        } catch (EntityNotFoundException e) {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-	        } catch (Exception e) {
-	            return ResponseEntity.badRequest().body("Error creating session training: " + e.getMessage());
-	        }
-	    }
+	         String username = (String) payload.get("username");
+	         List<String> playerNames = (List<String>) payload.get("playerNames");
+	         SessionTraining sessionTraining = mapToSessionTraining(payload);
+
+	         // User and player validation
+	         User user = userRepository.searchByUsername(username)
+	             .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+
+	         List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
+	         if (players.isEmpty()) {
+	             throw new EntityNotFoundException("Players not found");
+	         }
+
+	         sessionTraining.setUser(user);
+	         sessionTraining.setPresencePlayer(players);
+
+	         SessionTraining savedSessionTraining = sessionTrainingRepository.save(sessionTraining);
+	         return ResponseEntity.ok(savedSessionTraining);
+
+	     } catch (EntityNotFoundException e) {
+	         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body("Error creating session training: " + e.getMessage());
+	     }
+	 }
+
 
 	  @GetMapping("/getPlayersBySession/{sessionName}")
 	    public ResponseEntity<?> getPlayersBySessionName(@PathVariable String sessionName) {
