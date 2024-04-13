@@ -1,9 +1,6 @@
 package com.example.demo.Controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeParseException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +8,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.Model.Club;
 import com.example.demo.Model.Player;
 import com.example.demo.Model.Scrims;
 import com.example.demo.Model.SessionTraining;
+import com.example.demo.Repository.PlayerRepository;
 import com.example.demo.Service.ScrimsService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -36,34 +32,36 @@ import jakarta.persistence.EntityNotFoundException;
 public class ScrimsController {
 	@Autowired
     private ScrimsService scrimsService;
-	 @PostMapping("/add")
-	    public ResponseEntity<?> addScrimsWithDetails(@RequestBody Map<String, Object> payload) {
-	        try {
-	            String sessionName = (String) payload.get("sessionName");
-	            String dateStart = (String) payload.get("dateStart");
-	            String dateEnd = (String) payload.get("dateEnd");
-	            String feedbacksEntraineurs = (String) payload.get("feedbacksEntraineurs");
-	            List<String> objectivesNames = (List<String>) payload.get("objectivesNames");
-	            List<String> playerNames = (List<String>) payload.get("playerNames");
-	            String coachName = (String) payload.get("coachName");
-	            String description = (String) payload.get("description");
-	            String niveau = (String) payload.get("niveau");
-	            String mode = (String) payload.get("mode");
-	            List<String> specialObjectives = (List<String>) payload.get("specialObjectives");
+	@Autowired
+	PlayerRepository playerRepository;
+	@PostMapping("/add")
+	public ResponseEntity<?> createScrims(@RequestBody Map<String, Object> payload) {
+	    try {
+	        String sessionName = (String) payload.get("sessionName");
+	        String dateStart = (String) payload.get("dateStart");
+	        String dateEnd = (String) payload.get("dateEnd");
+	        String feedbacksEntraineurs = (String) payload.get("feedbacksEntraineurs");
+	        List<String> objectivesNames = (List<String>) payload.get("objectivesNames");
+	        List<String> playerNames = (List<String>) payload.get("playerNames");
+	        String username = (String) payload.get("username"); // Passed username of the coach
+	        String description = (String) payload.get("description");
+	        String niveau = (String) payload.get("niveau");
+	        String mode = (String) payload.get("mode");
+	        List<String> specialObjectives = (List<String>) payload.get("specialObjectives");
 
-	            Scrims savedScrims = scrimsService.createScrimsWithDetails(sessionName, dateStart, dateEnd, 
-	                                                                       feedbacksEntraineurs, objectivesNames, 
-	                                                                       playerNames, coachName, description, 
-	                                                                       niveau, mode, specialObjectives);
-	            return ResponseEntity.ok(savedScrims);
-	        } catch (DateTimeParseException e) {
-	            return ResponseEntity.badRequest().body("Error parsing date fields: " + e.getMessage());
-	        } catch (EntityNotFoundException e) {
-	            return ResponseEntity.notFound().build();
-	        } catch (Exception e) {
-	            return ResponseEntity.badRequest().body("An error occurred: " + e.getMessage());
-	        }
+	        Scrims savedScrims = scrimsService.createScrimsWithDetails(sessionName, dateStart, dateEnd, 
+	                                                                   feedbacksEntraineurs, objectivesNames, 
+	                                                                   playerNames, username, description, 
+	                                                                   niveau, mode, specialObjectives);
+	        return ResponseEntity.ok(savedScrims);
+	    } catch (DateTimeParseException e) {
+	        return ResponseEntity.badRequest().body("Error parsing date fields: " + e.getMessage());
+	    } catch (EntityNotFoundException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	    } catch (Exception e) {
+	        return ResponseEntity.badRequest().body("An error occurred: " + e.getMessage());
 	    }
+	}
 	 
 	 
 	 
@@ -90,41 +88,47 @@ public class ScrimsController {
 	    } 
 	  */
 	  
-	  @PutMapping("/update/{id}")
-		 public ResponseEntity<?> updateScrims(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
-		        try {
-		            Scrims existingScrims = scrimsService.getScrims(id);
-		            if (existingScrims == null) {
-		                return ResponseEntity.notFound().build();
-		            }
+	 @PutMapping("/update/{id}")
+	 public ResponseEntity<?> updateScrims(@PathVariable("id") Long id, @RequestBody Map<String, Object> payload) {
+	     try {
+	         // Fetch the existing Scrims from the database
+	         Scrims existingScrims = scrimsService.getScrims(id);
+	         if (existingScrims == null) {
+	             return ResponseEntity.notFound().build();
+	         }
 
-		            // Update player details from payload
-		            String description = (String) payload.get("description");
-		            if (description != null) existingScrims.setDescription(description);
-		            
-		            String mode = (String) payload.get("mode");
-		            if (mode != null) existingScrims.setMode(mode);
-		            
-		            String niveau = (String) payload.get("niveau");
-		            if (niveau != null) existingScrims.setNiveau(niveau);
-		            
-		            List<String> specialObjectives = (List<String>) payload.get("specialObjectives");
-		            if(specialObjectives!=null)existingScrims.setSpecialObjectives(specialObjectives);
-		            
-		            List<String> playerNames = (List<String>) payload.get("playerNames");
-		            
-		            
-		            
-		            
-		          	            	// Now, save the updated player information
-		            Scrims updatedScrims = scrimsService.updateScrims(id, existingScrims);
+	         // Update each field checking for existence in the payload
+	         String description = (String) payload.get("description");
+	         if (description != null) existingScrims.setDescription(description);
+	         
+	         String mode = (String) payload.get("mode");
+	         if (mode != null) existingScrims.setMode(mode);
+	         
+	         String niveau = (String) payload.get("niveau");
+	         if (niveau != null) existingScrims.setNiveau(niveau);
+	         
+	         List<String> specialObjectives = (List<String>) payload.get("specialObjectives");
+	         if (specialObjectives != null) existingScrims.setSpecialObjectives(specialObjectives);
+	         
+	         List<String> playerNames = (List<String>) payload.get("playerNames");
+	         if (playerNames != null && !playerNames.isEmpty()) {
+	             List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
+	             if (players.isEmpty()) {
+	                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("One or more players not found.");
+	             }
+	             existingScrims.setScrimsPlayers(players);
+	         }
 
-		            return ResponseEntity.ok(updatedScrims);
-		        } catch (Exception e) {
-		            return ResponseEntity.badRequest().body("An error occurred while updating the Scrims: " + e.getMessage());
-		        }
-		    }
+	         // Save the updated Scrims information
+	         Scrims updatedScrims = scrimsService.updateScrims(id, existingScrims);
 
+	         return ResponseEntity.ok(updatedScrims);
+	     } catch (EntityNotFoundException e) {
+	         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Scrims not found with id: " + id);
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body("An error occurred while updating the Scrims: " + e.getMessage());
+	     }
+	 }
 	  
 	  
 	  

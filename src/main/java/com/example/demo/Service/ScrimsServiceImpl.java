@@ -14,9 +14,11 @@ import com.example.demo.Model.Coach;
 import com.example.demo.Model.Player;
 import com.example.demo.Model.Scrims;
 import com.example.demo.Model.SessionTraining;
+import com.example.demo.Model.User;
 import com.example.demo.Repository.CoachRepository;
 import com.example.demo.Repository.PlayerRepository;
 import com.example.demo.Repository.ScrimsRepository;
+import com.example.demo.Repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -29,46 +31,55 @@ public class ScrimsServiceImpl implements ScrimsService {
 	PlayerRepository playerRepository;
 	@Autowired
 	CoachRepository coachRepository;
+	@Autowired
+	UserRepository userRepository;
 	 @Override
-	    @Transactional
-	    public Scrims createScrimsWithDetails(String sessionName, String dateStringStart, String dateStringEnd, 
-	                                          String feedbacksEntraineurs, List<String> objectivesNames, 
-	                                          List<String> playerNames, String coachName, 
-	                                          String description, String niveau, String mode, List<String> specialObjectives) {
-	        // Parsing string dates to Date objects
-	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	        Date dateStart = null;
-	        Date dateEnd = null;
-	        try {
-	            dateStart = dateFormat.parse(dateStringStart);
-	            dateEnd = dateFormat.parse(dateStringEnd);
-	        } catch (ParseException e) {
-	            throw new RuntimeException("Error parsing date fields: " + e.getMessage());
-	        }
+	 @Transactional
+	 public Scrims createScrimsWithDetails(String sessionName, String dateStringStart, String dateStringEnd, 
+	                                       String feedbacksEntraineurs, List<String> objectivesNames, 
+	                                       List<String> playerNames, String username, 
+	                                       String description, String niveau, String mode, List<String> specialObjectives) {
+	     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	     Date dateStart, dateEnd;
+	     try {
+	         dateStart = dateFormat.parse(dateStringStart);
+	         dateEnd = dateFormat.parse(dateStringEnd);
+	     } catch (ParseException e) {
+	         throw new RuntimeException("Error parsing date fields", e);
+	     }
 
-	        Coach coach = coachRepository.findByNameCoachIgnoreCase(coachName)
-	                .orElseThrow(() -> new EntityNotFoundException("Coach not found with name: " + coachName));
+	     User user = userRepository.searchByUsername(username)
+	         .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
 
-	        List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
-	        if (players.isEmpty()) {
-	            throw new EntityNotFoundException("One or more players not found by names: " + playerNames);
-	        }
+	     // Check if the user has the role of 'coach'
+	     boolean isCoach = user.getRoles().stream()
+	         .anyMatch(role -> role.getRole().equalsIgnoreCase("coach"));
+	     if (!isCoach) {
+	         throw new IllegalArgumentException("User is not a coach");
+	     }
 
-	        Scrims scrims = new Scrims();
-	        scrims.setSessionName(sessionName);
-	        scrims.setDateStart(dateStart);
-	        scrims.setDateEnd(dateEnd);
-	        scrims.setFeedbacksEntraineurs(feedbacksEntraineurs);
-	        scrims.setObjectifs(objectivesNames); // Ensure your entity is set up to handle List<String>
-	        scrims.setDescription(description);
-	        scrims.setNiveau(niveau);
-	        scrims.setMode(mode);
-	        scrims.setSpecialObjectives(specialObjectives); // Ensure your entity is set up to handle List<String>
-	        scrims.setScrimsPlayers(players);
-	        scrims.setCoach(coach);
+	     List<Player> players = playerRepository.findByLeagalefullnameInIgnoreCase(playerNames);
+	     if (players.isEmpty()) {
+	         throw new EntityNotFoundException("Players not found");
+	     }
 
-	        return scrimsRepository.save(scrims);
-	    }	  @Override
+	     Scrims scrims = new Scrims();
+	     scrims.setSessionName(sessionName);
+	     scrims.setDateStart(dateStart);
+	     scrims.setDateEnd(dateEnd);
+	     scrims.setFeedbacksEntraineurs(feedbacksEntraineurs);
+	     scrims.setObjectifs(objectivesNames);
+	     scrims.setDescription(description);
+	     scrims.setNiveau(niveau);
+	     scrims.setMode(mode);
+	     scrims.setSpecialObjectives(specialObjectives);
+	     scrims.setScrimsPlayers(players);
+	     scrims.setUser(user); // Setting the user with the role of a coach
+
+	     return scrimsRepository.save(scrims);
+	 }
+	 
+	 @Override
 	    @Transactional
 	    public Scrims updateScrims(Long id, Scrims scrimsDetails) {
 	        Scrims existingScrims = scrimsRepository.findById(id)
@@ -82,7 +93,10 @@ public class ScrimsServiceImpl implements ScrimsService {
 	        // Assuming setters for inherited properties and relationships are correctly implemented
 
 	        return scrimsRepository.save(existingScrims);
-	    }		@Override
+	    }
+	 
+	 
+	 @Override
 		public void deleteScrims(Scrims scrims) {
 			scrimsRepository.delete(scrims);
 		}
