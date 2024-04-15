@@ -41,7 +41,6 @@ public class ScrimsController {
 	        String dateStart = (String) payload.get("dateStart");
 	        String dateEnd = (String) payload.get("dateEnd");
 	        String feedbacksEntraineurs = (String) payload.get("feedbacksEntraineurs");
-	        List<String> objectivesNames = (List<String>) payload.get("objectivesNames");
 	        List<String> playerNames = (List<String>) payload.get("playerNames");
 	        String username = (String) payload.get("username"); // Passed username of the coach
 	        String description = (String) payload.get("description");
@@ -50,7 +49,7 @@ public class ScrimsController {
 	        List<String> specialObjectives = (List<String>) payload.get("specialObjectives");
 
 	        Scrims savedScrims = scrimsService.createScrimsWithDetails(sessionName, dateStart, dateEnd, 
-	                                                                   feedbacksEntraineurs, objectivesNames, 
+	                                                                   feedbacksEntraineurs, 
 	                                                                   playerNames, username, description, 
 	                                                                   niveau, mode, specialObjectives);
 	        return ResponseEntity.ok(savedScrims);

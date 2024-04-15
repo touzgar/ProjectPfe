@@ -36,7 +36,7 @@ public class ScrimsServiceImpl implements ScrimsService {
 	 @Override
 	 @Transactional
 	 public Scrims createScrimsWithDetails(String sessionName, String dateStringStart, String dateStringEnd, 
-	                                       String feedbacksEntraineurs, List<String> objectivesNames, 
+	                                       String feedbacksEntraineurs, 
 	                                       List<String> playerNames, String username, 
 	                                       String description, String niveau, String mode, List<String> specialObjectives) {
 	     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -68,7 +68,6 @@ public class ScrimsServiceImpl implements ScrimsService {
 	     scrims.setDateStart(dateStart);
 	     scrims.setDateEnd(dateEnd);
 	     scrims.setFeedbacksEntraineurs(feedbacksEntraineurs);
-	     scrims.setObjectifs(objectivesNames);
 	     scrims.setDescription(description);
 	     scrims.setNiveau(niveau);
 	     scrims.setMode(mode);

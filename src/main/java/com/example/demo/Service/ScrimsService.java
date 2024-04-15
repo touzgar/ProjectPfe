@@ -9,7 +9,7 @@ import com.example.demo.Model.SessionTraining;
 
 public interface ScrimsService {
 	  Scrims createScrimsWithDetails(String sessionName, String dateStart, String dateEnd, 
-              String feedbacksEntraineurs, List<String> objectivesNames, 
+              String feedbacksEntraineurs, 
               List<String> playerNames, String coachName, 
               String description, String niveau, String mode, List<String> specialObjectives);
 
