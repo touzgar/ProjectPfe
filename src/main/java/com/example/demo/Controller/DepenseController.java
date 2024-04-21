@@ -105,7 +105,16 @@ DepenseService depenseService;
 	        }
 	    }
 
-
+	 @GetMapping("/total")
+	    public ResponseEntity<Double> getTotalDepense() {
+	        Double totalDepense = depenseService.calculateTotalDepense();
+	        return ResponseEntity.ok(totalDepense);
+	    }
+	 @GetMapping("/totalByMonth")
+	    public ResponseEntity<Map<String, Double>> getTotalDepenseByMonth() {
+	        Map<String, Double> totalDepenseByMonth = depenseService.calculateTotalDepenseByMonth();
+	        return ResponseEntity.ok(totalDepenseByMonth);
+	    }
 
 
 }

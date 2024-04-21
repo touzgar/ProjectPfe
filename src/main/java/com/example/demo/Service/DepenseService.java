@@ -1,8 +1,9 @@
 package com.example.demo.Service;
 
 import java.util.List;
+import java.util.Map;
 
-
+import com.example.demo.Model.Budget;
 import com.example.demo.Model.Depense;
 
 public interface DepenseService {
@@ -12,5 +13,7 @@ public interface DepenseService {
 	void deleteDepenseById(Long idDepense);
 	Depense getDepense(Long idDepense);
 	List<Depense> getAllDepenses();
-
+	 Double calculateTotalDepense();
+	 Map<String, Double> calculateTotalDepenseByMonth();
+	
 }

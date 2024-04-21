@@ -2,6 +2,7 @@ package com.example.demo.Service;
 
 import java.util.List;
 
+import com.example.demo.Model.Player;
 import com.example.demo.Model.Team;
 
 public interface TeamService {
@@ -19,5 +20,7 @@ public interface TeamService {
 	  Team addPlayersToTeamByNames(String teamName, List<String> playerNames);
 	  Team removePlayersFromTeamByNames(String teamName, List<String> playerNames);
 	  Team getTeamByName(String teamName);
+	  List<Player> getPlayersByTeamNames(List<String> teamNames);
+
 	
 }

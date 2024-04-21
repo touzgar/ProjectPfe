@@ -103,6 +103,16 @@ public void deleteRevenus(@PathVariable("id") Long id) {
             return ResponseEntity.badRequest().body("An error occurred while updating the team: " + e.getMessage());
         }
     }
+ @GetMapping("/total")
+ public ResponseEntity<Double> getTotalRevenus() {
+     Double totalRevenus = revenusService.calculateTotalRevenus();
+     return ResponseEntity.ok(totalRevenus);
+ }
+ @GetMapping("/totalByMonth")
+ public ResponseEntity<Map<String, Double>> getTotalRevenusByMonth() {
+     Map<String, Double> totalRevenusByMonth = revenusService.calculateTotalRevenusByMonth();
+     return ResponseEntity.ok(totalRevenusByMonth);
+ }
 
 
 

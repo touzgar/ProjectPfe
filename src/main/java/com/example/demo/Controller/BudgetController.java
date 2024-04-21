@@ -109,7 +109,13 @@ public class BudgetController {
 	        }
 	    }
 
-
-
-
+	 @GetMapping("/calculateBudgetByMonth")
+	    public ResponseEntity<?> calculateBudgetByMonth() {
+	        try {
+	            Map<String, Double> budgetByMonth = budgetService.calculateBudgetByMonth();
+	            return ResponseEntity.ok(budgetByMonth);
+	        } catch (Exception e) {
+	            return ResponseEntity.badRequest().body("An error occurred while calculating budget by month: " + e.getMessage());
+	        }
+	    }
 }

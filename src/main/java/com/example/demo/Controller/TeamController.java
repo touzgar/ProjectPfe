@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Model.Club;
+import com.example.demo.Model.Player;
 import com.example.demo.Model.Team;
 import com.example.demo.Repository.ClubRepository;
 import com.example.demo.Service.TeamService;
@@ -156,6 +157,19 @@ public class TeamController {
 	         return ResponseEntity.badRequest().body("An error occurred while removing players from team: " + e.getMessage());
 	     }
 	 }
+	 @GetMapping("/getPlayersByTeamNames")
+	 public ResponseEntity<?> getPlayersByTeamNames(@RequestParam List<String> teamNames) {
+	     try {
+	         List<Player> players = teamService.getPlayersByTeamNames(teamNames);
+	         if (players.isEmpty()) {
+	             return ResponseEntity.notFound().build();
+	         }
+	         return ResponseEntity.ok(players);
+	     } catch (Exception e) {
+	         return ResponseEntity.badRequest().body("Failed to fetch players: " + e.getMessage());
+	     }
+	 }
+
 
 
 

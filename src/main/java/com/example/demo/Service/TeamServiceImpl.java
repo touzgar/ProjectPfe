@@ -191,4 +191,9 @@ public Team removePlayersFromTeamByNames(String teamName, List<String> playerNam
 public Team getTeamByName(String teamName) {
     return teamRepository.findByTeamName(teamName).orElse(null);
 }
+@Override
+public List<Player> getPlayersByTeamNames(List<String> teamNames) {
+    return playerRepository.findByTeamNames(teamNames);
+}
+
 }

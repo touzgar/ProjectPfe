@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -49,5 +50,12 @@ public class SessionTraining {
 	    @JoinColumn(name = "user_id")  // Assuming the user ID is stored in the 'user_id' column
 	    private User user;
 
+	    @ManyToMany
+	    @JoinTable(
+	        name = "session_training_team", // Name of the join table
+	        joinColumns = @JoinColumn(name = "session_id"), // Column linking to the current entity (SessionTraining)
+	        inverseJoinColumns = @JoinColumn(name = "team_id") // Column linking to the associated entity (Team)
+	    )
+	    private List<Team> teams;
 
 }
