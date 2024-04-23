@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.Model.Logiciel;
 
 import com.example.demo.Model.Ressources;
+import com.example.demo.Model.Team;
 import com.example.demo.Service.LogicielService;
 import com.example.demo.Service.RessourceService;
+import com.example.demo.Service.TeamService;
 
 @RestController
 @RequestMapping("/api/logiciel")
@@ -31,7 +34,7 @@ public class LogicielController {
 @Autowired
 LogicielService logicielService;
 @Autowired
-RessourceService ressourceService;
+TeamService teamService;
 
 @GetMapping("/getAll")
 List<Logiciel> getAllLogiciels(){
@@ -49,12 +52,12 @@ public Logiciel getLogicielById(@PathVariable("id") Long id) {
          String type = (String) payload.get("type");
          Boolean status = (Boolean) payload.get("status");
          
-         String resourceName = (String) payload.get("resourceName");
+         String teamName = (String) payload.get("teamName");
 
-         // Find the corresponding resource
-         Ressources resource = ressourceService.findRessourcesByName(resourceName);
-         if (resource == null) {
-             return ResponseEntity.badRequest().body("Resource with name " + resourceName + " not found");
+         // Find the corresponding team
+         Team team = teamService.getTeamByName(teamName);
+         if (team == null) {
+             return ResponseEntity.badRequest().body("Team with name " + teamName + " not found");
          }
 
          // Create and save the new Logiciel
@@ -63,7 +66,7 @@ public Logiciel getLogicielById(@PathVariable("id") Long id) {
          logiciel.setType(type);
          logiciel.setStatus(status);
          
-         logiciel.setRessources(resource);
+         logiciel.setTeam(team);
 
          Logiciel savedLogiciel = logicielService.saveLogiciel(logiciel);
          return ResponseEntity.ok(savedLogiciel);
@@ -106,10 +109,19 @@ public Logiciel getLogicielById(@PathVariable("id") Long id) {
      }
  }
 
+   
     @DeleteMapping("/delete/{id}")
-public void deleteLogiciel(@PathVariable("id") Long id) {
-    	logicielService.deleteLogicielById(id);
-}
+    public ResponseEntity<?> deleteLogiciel(@PathVariable("id") Long id) {
+        try {
+        	logicielService.deleteLogicielById(id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     public List<Logiciel> searchInstallations(@RequestParam("name") String logicielName) {
         return logicielService.searchByLogicielName(logicielName);

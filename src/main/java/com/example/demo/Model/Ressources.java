@@ -31,14 +31,8 @@ public class Ressources {
 		private int resourceId;
 		private String resourceName;
 		
-		@OneToMany(mappedBy = "ressources", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	    private List<Installation> installations;
-
-	    @OneToMany(mappedBy = "ressources", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	    private List<Materiel> materiel;
-
-	    @OneToMany(mappedBy = "ressources", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-	    private List<Logiciel> logiciel;
+		
+	   
 	    
 	    
 	    

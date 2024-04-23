@@ -32,13 +32,18 @@ InstallationsRepository installationsRepository;
 	 @Override
 	    @Transactional
 	    public void deleteInstallationById(Long idInstallation) {
-	        boolean exists = installationsRepository.existsById(idInstallation);
-	        if (!exists) {
-	            throw new RuntimeException("Installation not found for this id :: " + idInstallation);
-	        }
-	        installationsRepository.deleteById(idInstallation);
-	    }
+	        // Check if the installation exists
+	        Installation installation = installationsRepository.findById(idInstallation)
+	                .orElseThrow(() -> new RuntimeException("Installation not found for this id :: " + idInstallation));
 
+	        // Remove the installation from its associated team, if any
+	        if (installation.getTeam() != null) {
+	            installation.getTeam().getInstallations().remove(installation);
+	        }
+
+	        // Delete the installation
+	        installationsRepository.delete(installation);
+	    }
 	@Override
 	public Installation getInstallation(Long idInstallation) {
 		

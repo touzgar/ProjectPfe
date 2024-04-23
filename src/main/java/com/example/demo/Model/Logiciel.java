@@ -25,6 +25,7 @@ public class Logiciel {
 	 
 	 
 	 @ManyToOne(fetch = FetchType.EAGER)
-	    @JoinColumn(name = "resourceId")
-	    private Ressources ressources;
+	    @JoinColumn(name = "idTeam")
+	    private Team team;
+ 
 }

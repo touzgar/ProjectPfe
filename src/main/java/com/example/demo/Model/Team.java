@@ -115,8 +115,6 @@ public class Team {
 	    @ManyToMany(mappedBy = "teams")
 	    private List<Sponsor> sponsors;
 
-	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-	    private List<Ressources> ressources;
 	    
 	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
 	    private List<AchivementTeam> achievementTeams;
@@ -124,6 +122,13 @@ public class Team {
 	    @ManyToMany(mappedBy = "teams")
 	    private List<SessionTraining> sessionTrainings;
 
-	    
-	    
+	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	    private List<Installation> installations;
+
+	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	    private List<Materiel> materiel;
+
+	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+	    private List<Logiciel> logiciel;
+
 }

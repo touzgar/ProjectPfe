@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,8 +22,10 @@ import com.example.demo.Model.Installation;
 import com.example.demo.Model.Logiciel;
 import com.example.demo.Model.Materiel;
 import com.example.demo.Model.Ressources;
+import com.example.demo.Model.Team;
 import com.example.demo.Service.MaterielService;
 import com.example.demo.Service.RessourceService;
+import com.example.demo.Service.TeamService;
 
 @RestController
 @RequestMapping("/api/materiel")
@@ -31,7 +34,7 @@ public class MaterielController {
 @Autowired
 MaterielService materielService;
 @Autowired
-RessourceService ressourceService;
+TeamService teamService;
 	@GetMapping("/getAll")
 	List<Materiel> getAllMateriels(){
 		return materielService.getAllMateriel();
@@ -44,16 +47,16 @@ RessourceService ressourceService;
 	 public ResponseEntity<?> createMateriel(@RequestBody Map<String, Object> payload) {
 	     try {
 	         // Extract fields from the payload
-	         String materielName = (String) payload.get("Materiel");
+	         String materielName = (String) payload.get("materielName");
 	         String type = (String) payload.get("type");
 	         Boolean status = (Boolean) payload.get("status");
 	         
-	         String resourceName = (String) payload.get("resourceName");
+	         String teamName = (String) payload.get("teamName");
 
-	         // Find the corresponding resource
-	         Ressources resource = ressourceService.findRessourcesByName(resourceName);
-	         if (resource == null) {
-	             return ResponseEntity.badRequest().body("Resource with name " + resourceName + " not found");
+	         // Find the corresponding team
+	         Team team = teamService.getTeamByName(teamName);
+	         if (team == null) {
+	             return ResponseEntity.badRequest().body("Team with name " + teamName + " not found");
 	         }
 
 	         // Create and save the new Logiciel
@@ -62,7 +65,7 @@ RessourceService ressourceService;
 	         materiel.setType(type);
 	         materiel.setStatus(status);
 	         
-	         materiel.setRessources(resource);
+	         materiel.setTeam(team);
 
 	         Materiel savedMateriel = materielService.saveMateriel(materiel);
 	         return ResponseEntity.ok(savedMateriel);
@@ -105,10 +108,19 @@ RessourceService ressourceService;
 	     }
 	 }
 
+	   
 	    @DeleteMapping("/delete/{id}")
-	public void deleteMateriel(@PathVariable("id") Long id) {
-	    	materielService.deleteMaterielById(id);
-	}
+	    public ResponseEntity<?> deleteMateriel(@PathVariable("id") Long id) {
+	        try {
+	        	materielService.deleteMaterielById(id);
+	            return ResponseEntity.ok().build();
+	        } catch (RuntimeException e) {
+	            return ResponseEntity.notFound().build();
+	        } catch (Exception e) {
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+	        }
+	    }
+
 	    @RequestMapping(value = "/search", method = RequestMethod.GET)
 	    public List<Materiel> searchMateriels(@RequestParam("name") String materielName) {
 	        return materielService.searchByMaterielName(materielName);

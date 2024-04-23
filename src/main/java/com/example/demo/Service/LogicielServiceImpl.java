@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,11 +34,23 @@ LogicielRepository logicielRepository;
 		logicielRepository.delete(logiciel);
 	}
 
+	
 	@Override
-	public void deleteLogicielById(Long idLogiciel) {
-		logicielRepository.deleteById(idLogiciel);
-		
-	}
+    @Transactional
+    public void deleteLogicielById(Long idLogiciel) {
+        // Check if the installation exists
+        Logiciel logiciel = logicielRepository.findById(idLogiciel)
+                .orElseThrow(() -> new RuntimeException("Logiciel not found for this id :: " + idLogiciel));
+
+        // Remove the installation from its associated team, if any
+        if (logiciel.getTeam() != null) {
+            logiciel.getTeam().getLogiciel().remove(logiciel);
+        }
+
+        // Delete the installation
+        logicielRepository.delete(logiciel);
+    }
+
 
 	@Override
 	public Logiciel getLogiciel(Long idLogiciel) {

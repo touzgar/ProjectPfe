@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.Model.Installation;
 import com.example.demo.Model.Ressources;
+import com.example.demo.Model.Team;
 import com.example.demo.Service.InstallationService;
 import com.example.demo.Service.RessourceService;
+import com.example.demo.Service.TeamService;
 
 @RestController
 @RequestMapping("/api/installation")
@@ -30,7 +32,7 @@ public class InstallationController {
 @Autowired
 InstallationService installationService;
 @Autowired
-RessourceService ressourceService;
+TeamService teamService;
 @GetMapping("/getAll")
 List<Installation> getAllInstallations(){
 	return installationService.getAllInstallation();
@@ -85,37 +87,37 @@ public Installation getInstallationById(@PathVariable("id") Long id) {
          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
      }
  }
-    @PostMapping("/add")
-    public ResponseEntity<?> createInstallation(@RequestBody Map<String, Object> payload) {
-        try {
-            // Extract fields from the payload
-            String installationName = (String) payload.get("installationName");
-            String type = (String) payload.get("type");
-            Boolean disponibilite = (Boolean) payload.get("disponibilite");
-            Integer capacite = (Integer) payload.get("capacite");
-            String resourceName = (String) payload.get("resourceName");
 
-            // Find the corresponding resource
-            Ressources resource = ressourceService.findRessourcesByName(resourceName);
-            if (resource == null) {
-                return ResponseEntity.badRequest().body("Resource with name " + resourceName + " not found");
-            }
+ @PostMapping("/add")
+ public ResponseEntity<?> createInstallation(@RequestBody Map<String, Object> payload) {
+     try {
+         // Extract fields from the payload
+         String installationName = (String) payload.get("installationName");
+         String type = (String) payload.get("type");
+         Boolean disponibilite = (Boolean) payload.get("disponibilite");
+         Integer capacite = (Integer) payload.get("capacite");
+         String teamName = (String) payload.get("teamName");
 
-            // Create and save the new Installation
-            Installation installation = new Installation();
-            installation.setInstallationName(installationName);
-            installation.setType(type);
-            installation.setDisponibilite(disponibilite);
-            installation.setCapacite(capacite);
-            installation.setRessources(resource);
+         // Find the corresponding team
+         Team team = teamService.getTeamByName(teamName);
+         if (team == null) {
+             return ResponseEntity.badRequest().body("Team with name " + teamName + " not found");
+         }
 
-            Installation savedInstallation = installationService.saveInstallation(installation);
-            return ResponseEntity.ok(savedInstallation);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating installation: " + e.getMessage());
-        }
-    }
-    
+         // Create and save the new Installation
+         Installation installation = new Installation();
+         installation.setInstallationName(installationName);
+         installation.setType(type);
+         installation.setDisponibilite(disponibilite);
+         installation.setCapacite(capacite);
+         installation.setTeam(team); // Set the team
+
+         Installation savedInstallation = installationService.saveInstallation(installation);
+         return ResponseEntity.ok(savedInstallation);
+     } catch (Exception e) {
+         return ResponseEntity.badRequest().body("Error creating installation: " + e.getMessage());
+     }
+ }    
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     public List<Installation> searchInstallations(@RequestParam("name") String installationName) {
         return installationService.searchByInstallationName(installationName);

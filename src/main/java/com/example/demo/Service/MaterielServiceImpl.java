@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.Model.Logiciel;
 import com.example.demo.Model.Materiel;
 import com.example.demo.Repository.MaterielRepository;
 
@@ -32,10 +34,23 @@ public class MaterielServiceImpl implements MaterielService {
         materielRepository.delete(materiel);
     }
 
+   
     @Override
+    @Transactional
     public void deleteMaterielById(Long idMateriel) {
-        materielRepository.deleteById(idMateriel);
+        // Check if the installation exists
+        Materiel materiel = materielRepository.findById(idMateriel)
+                .orElseThrow(() -> new RuntimeException("Materiel not found for this id :: " + idMateriel));
+
+        // Remove the installation from its associated team, if any
+        if (materiel.getTeam() != null) {
+            materiel.getTeam().getMateriel().remove(materiel);
+        }
+
+        // Delete the installation
+        materielRepository.delete(materiel);
     }
+
 
     @Override
     public Materiel getMateriel(Long idMateriel) {

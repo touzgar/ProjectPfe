@@ -67,19 +67,14 @@ public Ressources getRessourcesById(@PathVariable("id") Long id) {
      try {
          // Extract fields from the payload
          String ressourceName = (String) payload.get("ressourcesName");
-         String teamName = (String) payload.get("teamName");
-
+        
          // Find the corresponding team by its name
-         Team team = teamService.getTeamByName(teamName);
-         if (team == null) {
-             return ResponseEntity.badRequest().body("Team with name " + teamName + " not found");
-         }
+        
 
          // Create and save the new Resource
          Ressources resource = new Ressources();
          resource.setResourceName(ressourceName);
-         resource.setTeam(team);
-
+        
          Ressources savedResource = ressourceService.saveRessource(resource);
          return ResponseEntity.ok(savedResource);
      } catch (Exception e) {
