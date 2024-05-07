@@ -12,5 +12,6 @@ public interface CLubService {
 	Club getClub(Long idClub);
 	List<Club> getAllClubs();
 	List<Club> searchByClubName(String clubName);
+	
 
 }
