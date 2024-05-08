@@ -139,6 +139,11 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
          String tournamentName = (String) payload.get("tournamentName");
          List<String> teamNames = (List<String>) payload.get("teamNames");
 
+         // Ensure both tournament name and team names are provided
+         if (tournamentName == null || teamNames == null || teamNames.isEmpty()) {
+             return ResponseEntity.badRequest().body("Missing tournamentName or teamNames in the request payload.");
+         }
+
          Tournament updatedTournament = tournamentService.registerTeamsInTournament(tournamentName, teamNames);
          return ResponseEntity.ok(updatedTournament);
      } catch (Exception e) {
@@ -215,5 +220,14 @@ public Tournament getTournamentById(@PathVariable("id") Long id) {
         return tournamentService.searchByTournamentName(tournamentName);
     }
 
+    @GetMapping("/teamsByTournament")
+    public ResponseEntity<List<Team>> getTeamsByTournament(@RequestParam("tournamentName") String tournamentName) {
+        try {
+            List<Team> teams = tournamentService.getTeamsByTournament(tournamentName);
+            return ResponseEntity.ok(teams);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
 
 }

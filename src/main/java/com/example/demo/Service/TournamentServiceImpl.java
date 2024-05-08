@@ -165,6 +165,14 @@ public class TournamentServiceImpl implements TournamentService {
 		public List<Tournament> searchByTournamentName(String tournamentName) {
 		    return tournamentRepository.findByTournamentNameContainingIgnoreCase(tournamentName);
 		}
+	  @Override
+	  public List<Team> getTeamsByTournament(String tournamentName) {
+	      Tournament tournament = tournamentRepository.findByTournamentName(tournamentName)
+	              .orElseThrow(() -> new RuntimeException("Tournament with name '" + tournamentName + "' not found"));
+
+	      return tournament.getTeams();
+	  }
+
 
 
 }

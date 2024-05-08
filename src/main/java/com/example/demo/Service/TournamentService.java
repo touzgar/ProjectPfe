@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.example.demo.Model.Defi;
+import com.example.demo.Model.Team;
 import com.example.demo.Model.Tournament;
 
 public interface TournamentService {
@@ -21,4 +22,6 @@ public interface TournamentService {
 	void deleteMatchFromTournament(Long idDefi);
 	 List<Tournament> getHistoricalTournaments();
 	 List<Tournament> searchByTournamentName(String tournamentName);
+	 List<Team> getTeamsByTournament(String tournamentName);
+
 }

@@ -254,19 +254,41 @@ ImageRepository imageRepository;
 
         emailSender.emailSend(email, subject, emailBody);
     }
-	 @Override
-	 public User updateUser(Long userId, User userDetails) {
-	     User user = userRepository.findById(userId)
-	             .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    @Override
+    public User updateUser(Long userId, User userDetails) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-	     user.setUsername(userDetails.getUsername());
-	     user.setEmail(userDetails.getEmail());
-	     user.setPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
-	     user.setEnabled(userDetails.getEnabled());
-	     // Update other fields as necessary
+        String oldUsername = user.getUsername();
+        String oldEmail = user.getEmail();
 
-	     return userRepository.save(user);
-	 }
+        user.setUsername(userDetails.getUsername());
+        user.setEmail(userDetails.getEmail());
+        user.setPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
+        user.setEnabled(userDetails.getEnabled());
+        user.setRoles(userDetails.getRoles());
+
+        User updatedUser = userRepository.save(user);
+
+        // Send email notification about the update
+        sendUserUpdateNotificationEmail(oldUsername, oldEmail, updatedUser);
+
+        return updatedUser;
+    }
+
+    private void sendUserUpdateNotificationEmail(String oldUsername, String oldEmail, User updatedUser) {
+        String email = updatedUser.getEmail();
+        String username = updatedUser.getUsername();
+        String subject = "Your Account Information Has Been Updated";
+        String emailBody = "Dear " + oldUsername + ",\n\n" +
+                "Your account information has been updated successfully. Here are the details:\n\n" +
+                "Old Email: " + oldEmail + "\n" +
+                "New Email: " + email + "\n" +
+                "Username: " + username + "\n\n" +
+                "If you did not request this update, please contact support immediately.";
+
+        emailSender.sendEmail(email, emailBody);
+    }
 
 	 @Override
 	 public void deleteUser(Long userId) {
