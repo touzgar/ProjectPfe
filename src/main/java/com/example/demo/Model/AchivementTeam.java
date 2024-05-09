@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +25,8 @@ public class AchivementTeam {
     private Date dateAchived; // Renamed from 'dateAchived'
     private String achievementRank; // Renamed from 'Rank'
     
-    @ManyToOne // Many achievements belong to one team
-    private Team team;
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team; // Relationship to Team
 }
 

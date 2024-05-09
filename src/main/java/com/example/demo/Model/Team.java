@@ -118,7 +118,7 @@ public class Team {
 	    
 	    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
 	    private List<AchivementTeam> achievementTeams;
-
+	    
 	    @ManyToMany(mappedBy = "teams")
 	    private List<SessionTraining> sessionTrainings;
 

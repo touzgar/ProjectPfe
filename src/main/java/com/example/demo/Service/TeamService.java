@@ -1,6 +1,7 @@
 package com.example.demo.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.example.demo.Model.Player;
 import com.example.demo.Model.Team;
@@ -21,6 +22,6 @@ public interface TeamService {
 	  Team removePlayersFromTeamByNames(String teamName, List<String> playerNames);
 	  Team getTeamByName(String teamName);
 	  List<Player> getPlayersByTeamNames(List<String> teamNames);
-
+	  Optional<Team> findByTeamName(String teamName);
 	
 }

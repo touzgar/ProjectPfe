@@ -3,10 +3,13 @@ package com.example.demo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.example.demo.Model.Role;
 import com.example.demo.Model.User;
+import com.example.demo.Service.TeamService;
+import com.example.demo.Service.TeamServiceImpl;
 import com.example.demo.Service.UserService;
 
 import jakarta.annotation.PostConstruct;
@@ -45,5 +48,8 @@ public class GarkSportApplication {
         SpringApplication.run(GarkSportApplication.class, args);
         System.out.println("YOKOSO WATASHO NO SOUL SOCIETY HADO NO 99");
     }
-
+    @Bean
+    public TeamService teamService() {
+        return new TeamServiceImpl();
+    }
    }
