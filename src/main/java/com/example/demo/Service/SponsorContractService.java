@@ -14,6 +14,7 @@ public interface SponsorContractService {
 	SponsorContract getSponsor(Long idSponsorContract);
 	List<SponsorContract> getAllSponsorContract();
 	List<SponsorContract> searchBySponsorContractName(String SponsorContractName);
-	SponsorContract addSponsorToSponsorContract(String sponsorContractName, String sponsorName);
-
-}
+	//SponsorContract addSponsorToSponsorContract(String sponsorContractName, String sponsorName);
+	SponsorContract addSponsorContractWithDetails(SponsorContract sponsorContract, String sponsorUsername, String teamName);
+	SponsorContract updateSponsorContractWithDetails(SponsorContract sponsorContract, String sponsorUsername, String teamName);
+	}

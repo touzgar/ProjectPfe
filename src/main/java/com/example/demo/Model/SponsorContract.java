@@ -38,5 +38,8 @@ public class SponsorContract {
     @JoinColumn(name = "sponsor_id") // This column is added to SponsorContract table.
     private Sponsor sponsor;
 	
+	 @ManyToOne
+	    @JoinColumn(name = "team_id")
+	    private Team team;
 	
 }

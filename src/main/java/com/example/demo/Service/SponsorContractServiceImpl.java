@@ -10,16 +10,28 @@ import com.example.demo.Model.Coach;
 import com.example.demo.Model.Sponsor;
 import com.example.demo.Model.SponsorContract;
 import com.example.demo.Model.Team;
+import com.example.demo.Model.User;
+import com.example.demo.Repository.RoleRepository;
 import com.example.demo.Repository.SponsorContractRepository;
 import com.example.demo.Repository.SponsorRepository;
+import com.example.demo.Repository.TeamRepository;
+import com.example.demo.Repository.UserRepository;
 
 @Service
 public class SponsorContractServiceImpl implements SponsorContractService {
-@Autowired
-SponsorContractRepository sponsorContractRepository;
-@Autowired
-SponsorRepository sponsorRepository;
-	@Override
+	 @Autowired
+	    SponsorContractRepository sponsorContractRepository;
+	    @Autowired
+	    SponsorRepository sponsorRepository;
+	    @Autowired
+	    TeamRepository teamRepository;
+	    @Autowired
+	    UserRepository userRepository;
+	    @Autowired
+	    RoleRepository roleRepository;
+	    
+	    
+	    @Override
 	public SponsorContract saveSponsorContract(SponsorContract sponsorContract) {
 		
 		return sponsorContractRepository.save(sponsorContract);
@@ -57,7 +69,7 @@ SponsorRepository sponsorRepository;
 	public List<SponsorContract> searchBySponsorContractName(String SponsorContractName) {
 		return sponsorContractRepository.findBySponsorContractNameContainingIgnoreCase(SponsorContractName);
 	}
-	@Override
+	/*@Override
 	public SponsorContract addSponsorToSponsorContract(String sponsorContractName, String sponsorName) {
 	    // Find SponsorContract by name
 	    SponsorContract sponsorContract = sponsorContractRepository.findBySponsorContractNameContainingIgnoreCase(sponsorContractName)
@@ -86,6 +98,83 @@ SponsorRepository sponsorRepository;
 
 	    return sponsorContract;
 	}
+*/
+	@Override
+    public SponsorContract addSponsorContractWithDetails(SponsorContract sponsorContract, String sponsorUsername, String teamName) {
+        // Find or create Sponsor entity
+        User sponsorUser = userRepository.findByUsername(sponsorUsername);
+        if (sponsorUser == null || !sponsorUser.getRoles().stream().anyMatch(r -> r.getRole().equalsIgnoreCase("Sponsor"))) {
+            throw new RuntimeException("User with role 'Sponsor' and username '" + sponsorUsername + "' not found");
+        }
+
+        Sponsor sponsor = sponsorRepository.findBySponsorNameContainingIgnoreCase(sponsorUsername)
+                .stream()
+                .findFirst()
+                .orElseGet(() -> {
+                    Sponsor newSponsor = new Sponsor();
+                    newSponsor.setSponsorName(sponsorUsername);
+                    return sponsorRepository.save(newSponsor);
+                });
+
+        // Find Team by name
+        Team team = teamRepository.findByTeamNameContainingIgnoreCase(teamName)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
+
+        // Set Sponsor and Team to SponsorContract
+        sponsorContract.setSponsor(sponsor);
+        sponsorContract.setTeam(team);
+
+        // Save the SponsorContract
+        return sponsorContractRepository.save(sponsorContract);
+    }
+	
+	 @Override
+	    public SponsorContract updateSponsorContractWithDetails(SponsorContract sponsorContract, String sponsorUsername, String teamName) {
+	        // Ensure the existing sponsor contract is found
+	        SponsorContract existingContract = sponsorContractRepository.findById(sponsorContract.getIdSponsorContract())
+	                .orElseThrow(() -> new RuntimeException("SponsorContract not found with id: " + sponsorContract.getIdSponsorContract()));
+
+	        // Update the attributes
+	        existingContract.setSponsorContractName(sponsorContract.getSponsorContractName());
+	        existingContract.setDateStart(sponsorContract.getDateStart());
+	        existingContract.setDateEnd(sponsorContract.getDateEnd());
+	        existingContract.setObjectif(sponsorContract.getObjectif());
+
+	        // Link with the sponsor and team
+	        return linkSponsorContractWithSponsorAndTeam(existingContract, sponsorUsername, teamName);
+	    }
+
+	    private SponsorContract linkSponsorContractWithSponsorAndTeam(SponsorContract sponsorContract, String sponsorUsername, String teamName) {
+	        // Find or create Sponsor entity
+	        User sponsorUser = userRepository.findByUsername(sponsorUsername);
+	        if (sponsorUser == null || !sponsorUser.getRoles().stream().anyMatch(r -> r.getRole().equalsIgnoreCase("Sponsor"))) {
+	            throw new RuntimeException("User with role 'Sponsor' and username '" + sponsorUsername + "' not found");
+	        }
+
+	        Sponsor sponsor = sponsorRepository.findBySponsorNameContainingIgnoreCase(sponsorUsername)
+	                .stream()
+	                .findFirst()
+	                .orElseGet(() -> {
+	                    Sponsor newSponsor = new Sponsor();
+	                    newSponsor.setSponsorName(sponsorUsername);
+	                    return sponsorRepository.save(newSponsor);
+	                });
+
+	        // Find Team by name
+	        Team team = teamRepository.findByTeamNameContainingIgnoreCase(teamName)
+	                .stream()
+	                .findFirst()
+	                .orElseThrow(() -> new RuntimeException("Team with name '" + teamName + "' not found"));
+
+	        // Set Sponsor and Team to SponsorContract
+	        sponsorContract.setSponsor(sponsor);
+	        sponsorContract.setTeam(team);
+
+	        // Save the SponsorContract
+	        return sponsorContractRepository.save(sponsorContract);
+	    }
 
 
 

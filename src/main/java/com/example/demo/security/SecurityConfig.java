@@ -82,7 +82,7 @@ public class SecurityConfig {
         	    .requestMatchers("/api/ressource/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/api/materiel/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/api/logiciel/**").hasAuthority("ROLE_Manager")
-        	    .requestMatchers("/api/installation/**").hasAuthority("ROLE_Manager")
+        	    .requestMatchers("/api/installation/**","/api/sponsorContract/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/allRoles","/addRole","/addRoleToUser/**","/all","/removeRoleByName/**","/deleteUser/**","/updateUser/**","/api/image/**").hasAnyAuthority("ROLE_ADMIN","ROLE_Manager")
         	    .requestMatchers("/addUserss","/specific-roles","/api/budget/**","/api/depense/**","/api/revenus/**","/api/achivementTeam/**").hasAuthority("ROLE_Manager")
         	    .requestMatchers("/manager-admin-roles","/addUserWithRole").hasAuthority("ROLE_ADMIN")
